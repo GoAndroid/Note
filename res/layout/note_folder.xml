@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@drawable/note_background">
+
+    <RelativeLayout android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/note_header">
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/note_folder_bar_title"
+                android:layout_margin="10dp"
+                android:textSize="24sp"
+                android:textColor="#ffead1ae"/>
+
+        <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/note_list_bar_add"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/add"
+                android:onClick="onAddNote"/>
+
+    </RelativeLayout>
+
+    <ListView
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"/>
+
+    <RelativeLayout android:id="@+id/note_folder_modify_folder_dialog"
+                    android:layout_height="194dp"
+                    android:layout_width="wrap_content"
+                    android:visibility="gone"
+                    android:background="@drawable/fenzuditu"
+                    android:layout_alignParentBottom="true">
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerHorizontal="true"
+                  android:layout_marginTop="20dp"
+                  android:text="Modify Folder"/>
+
+        <EditText android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_centerInParent="true"
+                  android:layout_marginLeft="5dp"
+                  android:layout_marginRight="5dp"
+                  android:inputType="text"/>
+
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentBottom="true"
+                      android:paddingBottom="5dp"
+                      android:paddingLeft="5dp"
+                      android:paddingRight="5dp"
+                      android:gravity="center">
+
+            <Button android:id="@+id/note_list_add_folder_ok_btn"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1.0"
+                    android:background="@drawable/note_list_ok_selector"
+                    android:onClick="onAddFolderOk"/>
+
+            <Button android:id="@+id/note_list_add_folder_cancel_btn"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="1.0"
+                    android:background="@drawable/note_list_cancel_selector"
+                    android:onClick="onAddFolderCancel"/>
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout android:id="@+id/note_folder_delete_dialog"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="@drawable/vol_bg"
+                  android:layout_alignParentBottom="true"
+                  android:paddingLeft="5dp"
+                  android:paddingRight="5dp"
+                  android:visibility="gone"
+                  android:gravity="center">
+
+        <Button android:id="@+id/note_list_delete_ok_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:background="@drawable/note_list_ok_selector"
+                android:onClick="onDeleteOk"/>
+
+        <Button android:id="@+id/note_list_delete_cancel_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:background="@drawable/note_list_cancel_selector"
+                android:onClick="onDeleteCancel"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">小米便签</string>
+    <string name="app_widget2x2">小米便签2x2</string>
+    <string name="app_widget4x4">小米便签4x4</string>
+    <string name="button_ok">完成</string>
+    <string name="button_delete">删除</string>
+    <string name="button_back">取消</string>
+    <string name="button_set">设定</string>
+    <string name="button_clear">清除</string>
+    <string name="app_upgradeTitle">软件升级</string>
+    <string name="app_upgradeDetail">有新的版本，请升级</string>
+    <string name="app_upgradeYes">现在升级</string>
+    <string name="app_upgradeNo">下次再说</string>
+    <string name="app_upgradeDownloading">正在下载中</string>
+    <string name="app_upgradeFailed">下载失败，以后会再通知您升级</string>
+    <string name="note_list_bar_title">我的便签</string>
+    <string name="note_list_bar_add">新建便签</string>
+    <string name="note_list_folder_add">新建文件夹</string>
+    <string name="note_list_folder_add_succ">添加成功</string>
+    <string name="note_list_folder_add_error_repeat">文件夹重复</string>
+    <string name="note_list_folder_add_error_nochild">不能在此建立文件夹</string>
+    <string name="widget_havenot_content">关联内容已删除，点击进入便签首页。</string>
+    <string name="note_list_delete_error_noitem">没有可以删除的选项</string>
+    <string name="note_list_delete_error_nonote">没有文件夹或便签</string>
+    <string name="note_list_string_info">……</string>
+    <string name="note_list_string_num_info">(%d)</string>
+    <string name="note_about_recommend">推荐更多好友</string>
+    <string name="note_list_menu_new_note">新建便签</string>
+    <string name="note_list_menu_new_folder">新建文件夹</string>
+    <string name="note_list_menu_move_into_folder">移进文件夹</string>
+    <string name="note_list_menu_recommend">推荐给好友</string>
+    <string name="note_list_menu_restore">云端恢复</string>
+    <string name="note_list_menu_about">关于</string>
+    <string name="note_list_menu_get_more">更多推荐</string>
+    <string name="note_list_menu_delete">删除</string>
+    <string name="note_list_menu_backup_to_sd">备份数据</string>
+    <string name="note_list_menu_restore_from_sd">从SD卡还原</string>
+    <string name="note_list_menu_export_to_txt">输出TXT文本</string>
+    <string name="note_list_menu_set_password">设置密码</string>
+    <string name="note_list_menu_restore_start">开始恢复，请稍等……</string>
+    <string name="note_list_menu_restore_end">恢复完成</string>
+    <string name="note_list_menu_restore_error">恢复失败</string>
+    <string name="note_list_sdcard_infomation">还原将会清空现有数据</string>
+    <string name="note_list_sdcard_unuse_error">SD卡被占用，不能操作</string>
+    <string name="note_list_sdcard_unhave_error">备份文件不存在</string>
+    <string name="note_list_sdcard_backup_error">备份数据时发生错误，请检查SD卡</string>
+    <string name="note_list_sdcard_restore_error">还原数据时发生错误，请检查备份数据是否正确</string>
+    <string name="note_list_sdcard_exprot_error">输出TXT时发生错误，请检查SD卡</string>
+    <string name="note_list_sdcard_backup_succ" formatted="false">已将备份文件\"%s\"导出至SD卡\"%s\"目录</string>
+    <string name="note_list_sdcard_restore_succ">还原成功</string>
+    <string name="note_list_sdcard_export_succ" formatted="false">已将TXT文件\"%s\"输出至SD卡\"%s\"目录</string>
+    <string name="note_list_sdcard_succ_title_backup">备份成功</string>
+    <string name="note_list_sdcard_succ_title_restore">还原成功</string>
+    <string name="note_list_sdcard_succ_title_export">输出成功</string>
+    <string name="note_list_sdcard_err_title">失败</string>
+    <string name="note_list_sdcard_tip_title">提示</string>
+    <string name="note_list_sdcard_ok">确定</string>
+    <string name="note_backup_email_title">小米便签备份文件</string>
+    <string name="note_backup_emali_body" formatted="false">小米便签 %s 备份成功。共备份%d个文件夹和%d条便签</string>
+    <string name="note_export_txt_email_title">小米便签输出文本</string>
+    <string name="note_export_txt_head_info" formatted="false">小米便签 %s 共输出%d个文件夹和%d条便签</string>
+    <string name="note_export_txt_folder_name">%s</string>
+    <string name="note_export_txt_split_line">----------------</string>
+    <string name="note_password_input_title">输入密码</string>
+    <string name="set_password_setting_title">设置密码</string>
+    <string name="set_password_changeing_title">修改密码</string>
+    <string name="set_password_setting_clear">清除密码</string>
+    <string name="set_password_label_password">密码</string>
+    <string name="set_password_label_confirm">确认</string>
+    <string name="set_password_ok">确定</string>
+    <string name="set_password_back">返回</string>
+    <string name="set_password_confirm">密码设置成功</string>
+    <string name="set_password_error_1">"密码输入次数过多。
+
+如需要请联系
+www.xiaomi.com"</string>
+    <string name="set_password_error_2">密码有误</string>
+    <string name="set_password_clear">密码已被清除</string>
+    <string name="note_edit_menu_remind">提醒我</string>
+    <string name="note_edit_menu_new_note">新建便签</string>
+    <string name="note_edit_menu_add_shortcut">添加到桌面</string>
+    <string name="note_edit_menu_bgcolor">换背景</string>
+    <string name="note_edit_menu_change_font_size">字体大小</string>
+    <string name="note_edit_menu_new">新建便签</string>
+    <string name="note_edit_menu_share">分享</string>
+    <string name="note_edit_menu_delete">删除</string>
+    <string name="note_edit_menu_enter_checklist">进入清单模式</string>
+    <string name="note_edit_menu_normal">退出清单模式</string>
+    <string name="note_edit_text_undo">撤销便签修改</string>
+    <string name="note_edit_note_save_succ">便签保存成功</string>
+    <string name="note_edit_set_enter_desktop">已添加到桌面</string>
+    <string name="note_edit_set_leave_desktop">便签移除桌面</string>
+    <string name="note_edit_use_alert_time">时间设置成功</string>
+    <string name="note_edit_use_alert_time_error">当前时间不可设定</string>
+    <string name="note_edit_set_alert_time_time">设定时间提醒我</string>
+    <string name="format_date_ymdw">yyyy年MM月dd日 EEEE</string>
+    <string name="format_date_ymd">yyyyMMdd</string>
+    <string name="format_date_md">MM月d日</string>
+    <string name="format_datetime_mdhm">MM月dd日 kk:mm</string>
+    <string name="format_time_hm">kk:mm</string>
+    <string name="format_week">EEEE</string>
+    <string name="note_edit_flag_on">标记红色</string>
+    <string name="note_edit_flag_off">取消标记</string>
+    <string name="note_edit_delete_confirm_hasNoEmptyFolder">"确认删除文件夹及
+所包含的便签吗？"</string>
+    <string name="note_edit_delete_confirm_ok">确定</string>
+    <string name="note_edit_delete_confirm_back">取消</string>
+    <string name="note_alert_ok">知道了</string>
+    <string name="note_alert_enter">查看</string>
+    <string name="note_link_tel">呼叫电话</string>
+    <string name="note_link_email">发送邮件</string>
+    <string name="note_link_web">浏览网页</string>
+    <string name="note_link_other">打开地图</string>
+    <string name="note_list_default_note">"小米便签v1.5.1 (2010.9.26)
+ 为了更好的支持多语言，把默认语言由中文换为英文。
+ 
+ 小米便签v1.5 (2010.9.10)
+ 新增智能识别电话，网址，邮箱,长按可进入对应软件操作。
+ 新增正文清单模式，并可以红色标注。
+ 桌面Widget可选择颜色，并增加大尺寸。
+ 可自由定义字体大小。
+ 支持中文简/繁体及英文。
+ 修正若干BUG。
+ 
+ 小米便签v1.2 (2010.8.26)
+ 将便签文件备份至SD卡或邮箱，并可随时导入还原。
+ 设置密码，保证便签私密性。
+ 批量输出TXT文本至SD卡或邮箱。
+ 修正若干BUG。
+ 
+ 小米便签v1.0 (2010.8.3)
+ 创建文件夹，将便签分类管理；
+ 创建桌面工具或添加桌面快捷方式，不进程序也能快捷查看;
+ 用不同的颜色来区分便签的优先级别；(比如：红色为重要)
+ 将任意便签设置闹钟提醒，并可用短信分享给你的好友。
+ 
+ 小米 xiaomi.com"</string>
+    <string name="note_list_commend_content">HI，最近我用小米便签感觉很好用，推荐你试试！http://sj.xiaomi.com/notes/xmnotes.apk</string>
+    <string name="note_about_content">"新增功能:
+-智能识别电话，网址，邮箱,长按可进入对应软件操作。
+-正文清单模式，并可以红色标注。
+-桌面Widget可选择颜色，并增加大尺寸。
+-可自由定义字体大小。
+-支持中文简/繁体及英文。
+小米工作室 www.xiaomi.com"</string>
+    <string name="note_about_icon">小米</string>
+    <string name="note_about_text">好记性不如烂笔头，想记就记</string>
+
+    <string name="note_folder_menu_new_note">新建便签</string>
+    <string name="note_folder_menu_edit_folder_title">修改文件夹</string>
+    <string name="note_folder_menu_move_out_of_folder">移出文件夹</string>
+    <string name="note_folder_menu_delete">删除</string>
+    <string name="note_folder_menu_add_shortcut">添加到桌面</string>
+    <string name="note_folder_bar_title">我的文件夹</string>
+
+    <string name="note_edit_change_color">change color</string>
+    <string name="note_edit_hint">please input</string>
+
+    <string name="dialog_delete_confirm">确定删除吗？</string>
+</resources>

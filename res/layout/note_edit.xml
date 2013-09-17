@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:paddingLeft="5dp"
+             android:paddingRight="5dp"
+             android:background="@drawable/note_background">
+
+    <RelativeLayout android:id="@+id/note_edit_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/notes_header_yellow">
+
+        <TextView android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"/>
+
+        <ImageButton android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:background="@drawable/notes_btn_changecolors"
+                     android:layout_alignParentRight="true"
+                     android:layout_centerVertical="true"
+                     android:contentDescription="@string/note_edit_change_color"
+                     android:onClick="onShowChangeColor"/>
+
+    </RelativeLayout>
+
+    <ScrollView android:id="@+id/note_edit_scroll"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="27dp"
+                android:paddingTop="10dp"
+                android:paddingLeft="15dp"
+                android:background="@drawable/notes_bg_yellow">
+        <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:gravity="top"
+                android:paddingBottom="15dp"
+                android:hint="@string/note_edit_hint"
+                android:singleLine="false"/>
+    </ScrollView>
+
+    <RadioGroup android:id="@+id/note_edit_change_color_dialog"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="70dp"
+                android:layout_gravity="center_horizontal"
+                android:visibility="visible"
+                android:background="@drawable/zhengwen_xuanyanse">
+
+        <RadioButton android:id="@+id/note_edit_yellow_radio_btn"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:button="@null"
+                     android:background="@drawable/color_radio_btn_selector"/>
+
+        <RadioButton android:id="@+id/note_edit_pink_radio_btn"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:button="@null"
+                     android:background="@drawable/color_radio_btn_selector"/>
+
+        <RadioButton android:id="@+id/note_edit_blue_radio_btn"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:button="@null"
+                     android:background="@drawable/color_radio_btn_selector"/>
+
+        <RadioButton android:id="@+id/note_edit_green_radio_btn"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:button="@null"
+                     android:background="@drawable/color_radio_btn_selector"/>
+
+        <RadioButton android:id="@+id/note_edit_grey_radio_btn"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:button="@null"
+                     android:background="@drawable/color_radio_btn_selector"/>
+
+    </RadioGroup>
+
+    <LinearLayout android:id="@+id/note_edit_change_font_dialog"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:background="@drawable/vol_bg"
+                  android:layout_marginBottom="50dp"
+                  android:visibility="gone"
+                  android:layout_gravity="bottom|center_horizontal"
+                  android:padding="10dp">
+
+        <SeekBar android:layout_width="250dp"
+                 android:layout_height="wrap_content"
+                 android:layout_gravity="center"/>
+    </LinearLayout>
+
+</FrameLayout>

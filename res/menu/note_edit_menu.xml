@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/note_edit_menu_new_note"
+          android:title="@string/note_edit_menu_new_note"
+          android:icon="@drawable/menu_new_note" />
+
+    <item android:id="@+id/note_edit_menu_remind"
+          android:title="@string/note_edit_menu_remind"
+          android:icon="@drawable/menu_remind" />
+
+    <item android:id="@+id/note_edit_menu_change_font_size"
+          android:title="@string/note_edit_menu_change_font_size"
+          android:icon="@drawable/menu_change_font_size"/>
+
+    <item android:id="@+id/note_edit_menu_delete"
+          android:title="@string/note_edit_menu_delete"
+          android:icon="@drawable/menu_delete" />
+
+    <item android:id="@+id/note_edit_menu_checklist"
+          android:title="@string/note_edit_menu_enter_checklist"
+          android:icon="@drawable/menu_enter_checklist" />
+
+    <item android:id="@+id/note_edit_menu_add_shortcut"
+          android:title="@string/note_edit_menu_add_shortcut" />
+
+    <item android:id="@+id/note_edit_menu_share"
+          android:title="@string/note_edit_menu_share" />
+
+</menu>

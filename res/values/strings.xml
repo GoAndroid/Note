@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XM Notes</string>
+    <string name="app_widget2x2">XM Notes 2x2</string>
+    <string name="app_widget4x4">XM Notes 4x4</string>
+    <string name="button_ok">OK</string>
+    <string name="button_delete">Delete</string>
+    <string name="button_back">Cancel</string>
+    <string name="button_set">Set</string>
+    <string name="button_clear">Cancel</string>
+    <string name="app_upgradeTitle">Upgrade</string>
+    <string name="app_upgradeDetail">Found new version, please upgrade.</string>
+    <string name="app_upgradeYes">Upgrade now</string>
+    <string name="app_upgradeNo">Not now</string>
+    <string name="app_upgradeDownloading">Downloading…</string>
+    <string name="app_upgradeFailed">Failed to download.</string>
+    <string name="note_list_bar_title">My notes</string>
+    <string name="note_list_bar_add">Add note</string>
+    <string name="note_list_folder_add">New folder</string>
+    <string name="note_list_folder_add_succ">Folder added</string>
+    <string name="note_list_folder_add_error_repeat">Duplicate folder name</string>
+    <string name="note_list_folder_add_error_nochild">Can not create folder.</string>
+    <string name="widget_havenot_content">No associated note found, click to go to XM Notes.</string>
+    <string name="note_list_delete_error_noitem">No item selected</string>
+    <string name="note_list_delete_error_nonote">No folder or note</string>
+    <string name="note_list_string_info">…</string>
+    <string name="note_list_string_num_info">(%d)</string>
+    <string name="note_about_recommend">Share to friends</string>
+    <string name="note_list_menu_new_note">Add note</string>
+    <string name="note_list_menu_new_folder">New folder</string>
+    <string name="note_list_menu_move_into_folder">Move into folder</string>
+    <string name="note_list_menu_recommend">Recommend to friends</string>
+    <string name="note_list_menu_restore">Backup to cloud</string>
+    <string name="note_list_menu_about">About</string>
+    <string name="note_list_menu_get_more">Get More</string>
+    <string name="note_list_menu_delete">Delete</string>
+    <string name="note_list_menu_backup_to_sd">Backup to SD card</string>
+    <string name="note_list_menu_restore_from_sd">Restore from SD card</string>
+    <string name="note_list_menu_export_to_txt">Export TXT file</string>
+    <string name="note_list_menu_set_password">Set password</string>
+    <string name="note_list_menu_restore_start">Restoring, please wait…</string>
+    <string name="note_list_menu_restore_end">Restore done</string>
+    <string name="note_list_menu_restore_error">Restore failed</string>
+    <string name="note_list_sdcard_infomation">Current data will be overwritten</string>
+    <string name="note_list_sdcard_unuse_error">SD card busy, not available now</string>
+    <string name="note_list_sdcard_unhave_error">File not exist</string>
+    <string name="note_list_sdcard_backup_error">Backup failed, please check SD card</string>
+    <string name="note_list_sdcard_restore_error">Restore failed, please check your data</string>
+    <string name="note_list_sdcard_exprot_error">Export failed, please check SD card</string>
+    <string name="note_list_sdcard_backup_succ" formatted="false">Backup successfully:%s to SD card folder:%s</string>
+    <string name="note_list_sdcard_restore_succ">Restore successful.</string>
+    <string name="note_list_sdcard_export_succ" formatted="false">Exported TXT file successful:%s to SD card folder:%s</string>
+    <string name="note_list_sdcard_succ_title_backup">Backup successful</string>
+    <string name="note_list_sdcard_succ_title_restore">Restore successful</string>
+    <string name="note_list_sdcard_succ_title_export">Export successful</string>
+    <string name="note_list_sdcard_err_title">Failed</string>
+    <string name="note_list_sdcard_tip_title">Tips</string>
+    <string name="note_list_sdcard_ok">OK</string>
+    <string name="note_backup_email_title">XM notes backup file</string>
+    <string name="note_backup_emali_body" formatted="false">XM notes %s backup successfully. %d folder and %d notes in total.</string>
+    <string name="note_export_txt_email_title">XM notes exported file</string>
+    <string name="note_export_txt_head_info" formatted="false">XM notes %s exported %d folder and %d notes.</string>
+    <string name="note_export_txt_folder_name">%s</string>
+    <string name="note_export_txt_split_line">----------------</string>
+    <string name="set_password_input_title">Input password</string>
+    <string name="set_password_setting_title">Set password</string>
+    <string name="set_password_changeing_title">Change password</string>
+    <string name="set_password_setting_clear">Clear password</string>
+    <string name="set_password_label_password">Password</string>
+    <string name="set_password_label_confirm">Confirm</string>
+    <string name="set_password_ok">OK</string>
+    <string name="set_password_back">Cancel</string>
+    <string name="set_password_confirm">You new password has been saved</string>
+    <string name="set_password_error_1">"Faild too many times.
+
+Please contact
+www.xiaomi.com"</string>
+    <string name="set_password_error_2">Wrong password</string>
+    <string name="set_password_clear">Password is cleared</string>
+    <string name="note_edit_menu_remind">Remind me</string>
+    <string name="note_edit_menu_add_shortcut">Add shortcut to Home</string>
+    <string name="note_edit_menu_bgcolor">Change background</string>
+    <string name="note_edit_menu_change_font_size">Change font size</string>
+    <string name="note_edit_menu_new_note">Add note</string>
+    <string name="note_edit_menu_share">Share</string>
+    <string name="note_edit_menu_delete">Delete</string>
+    <string name="note_edit_menu_enter_checklist">Enter checklist</string>
+    <string name="note_edit_menu_normal">Leave checklist</string>
+    <string name="note_edit_text_undo">Undo changes</string>
+    <string name="note_edit_note_save_succ">Notes saved</string>
+    <string name="note_edit_set_enter_desktop">Note added to Home</string>
+    <string name="note_edit_set_leave_desktop">Note deleted from Home</string>
+    <string name="note_edit_use_alert_time">Set time successfully</string>
+    <string name="note_edit_use_alert_time_error">Failed to set time</string>
+    <string name="note_edit_set_alert_time_time">Time is set</string>
+    <string name="format_date_ymdw">EEEE, MMMd,yyyy</string>
+    <string name="format_date_ymd">yyyyMMdd</string>
+    <string name="format_date_md">MMM d</string>
+    <string name="format_datetime_mdhm">MMMd kk:mm</string>
+    <string name="format_time_hm">kk:mm</string>
+    <string name="format_week">EEEE</string>
+    <string name="note_edit_flag_on">Mark red</string>
+    <string name="note_edit_flag_off">Delete mark</string>
+    <string name="note_edit_delete_confirm_hasNoEmptyFolder">"Confirm to delete folder
+and its notes？"</string>
+    <string name="note_edit_delete_confirm_ok">Ok</string>
+    <string name="note_edit_delete_confirm_back">Cancel</string>
+    <string name="note_alert_ok">Got it</string>
+    <string name="note_alert_enter">Take a look</string>
+    <string name="note_link_tel">Call</string>
+    <string name="note_link_email">Send email</string>
+    <string name="note_link_web">Browse web</string>
+    <string name="note_link_other">Open map</string>
+    <string name="note_list_default_note">"Upgrade changelog(2010.9.26)
+ Change default language from Chinese to English for better multiple-language support.
+ 
+ Upgrade changelog(2010.9.10)
+ Automatically link phone number、URLs in notes. You can launch proper activity with long press.
+ Support check-list mode when writing noted.
+ Add 4X4 widget.
+ Customize font size.
+ Support Chinese Simplified、Chinese Traditional and English languages.
+ Fix some bugs.
+ 
+ Upgrade changelog(2010.8.24)
+ SD card backup/restore.
+ Set password to protect privacy.
+ Export note to TXT format.
+ Fix several bugs.
+ 
+ Upgrade changelog(2010.8.3)
+ Create folder;
+ Create shortcut or widget on Home;
+ Mark note with different color;(e.g:mark important note in red)
+ Set alert time for note.
+ 
+ Xiaomi studio www.xiaomi.com"</string>
+    <string name="note_list_commend_content">Hi, I am using XM Notes,it is quite useful! Strongly recommend you to have a try. http://sj.xiaomi.com/notes/xmnotes.apk</string>
+    <string name="note_about_content">"Features:
+-Automatically link phone number、URLs in notes.
+-Support check-list mode when writing noted.
+-Add 4X4 widget.
+-Customize font size.
+
+Xiaomi studio www.xiaomi.com"</string>
+    <string name="note_about_share">Share to friends!</string>
+    <string name="note_about_icon">xiaomi</string>
+    <string name="note_about_text">好记性不如烂笔头，想记就记</string>
+
+    <string name="note_folder_menu_new_note">Add notes</string>
+    <string name="note_folder_menu_edit_folder_title">Edit folder title</string>
+    <string name="note_folder_menu_move_out_of_folder">Move out of folder</string>
+    <string name="note_folder_menu_delete">Delete</string>
+    <string name="note_folder_menu_add_shortcut">Add shortcut to Home</string>
+    <string name="note_folder_bar_title">My folder</string>
+
+    <string name="note_edit_change_color">change color</string>
+    <string name="note_edit_hint">please input</string>
+
+    <string name="dialog_delete_confirm">Confirm deletion?</string>
+
+</resources>

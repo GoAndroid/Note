@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/note_folder_menu_new_note"
+          android:title="@string/note_folder_menu_new_note"
+          android:icon="@drawable/menu_new_note"/>
+
+    <item android:id="@+id/note_folder_menu_edit_folder_title"
+          android:title="@string/note_folder_menu_edit_folder_title"
+          android:icon="@drawable/menu_edit_folder_title" />
+
+    <item android:id='@+id/note_folder_menu_move_out_of_folder'
+          android:title="@string/note_folder_menu_move_out_of_folder"
+          android:icon="@drawable/menu_move" />
+
+    <item android:id="@+id/note_folder_menu_delete"
+          android:title="@string/note_folder_menu_delete"
+          android:icon="@drawable/menu_delete" />
+
+    <item android:id="@+id/note_folder_menu_add_shortcut"
+          android:title="@string/note_folder_menu_add_shortcut"
+          android:icon="@drawable/menu_add_shortcut" />
+
+</menu>

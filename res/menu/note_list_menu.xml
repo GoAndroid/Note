@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/note_list_menu_add"
+          android:icon="@drawable/menu_new_note"
+          android:title="@string/note_list_menu_new_note" />
+
+    <item android:id="@+id/note_list_menu_new_folder"
+          android:icon="@drawable/menu_new_folder"
+          android:title="@string/note_list_menu_new_folder"/>
+
+    <item android:id="@+id/note_list_menu_move_into_folder"
+          android:icon="@drawable/menu_move"
+          android:title="@string/note_list_menu_move_into_folder"/>
+
+    <item android:id="@+id/note_list_menu_delete"
+          android:icon="@drawable/menu_delete"
+          android:title="@string/note_list_menu_delete"/>
+
+    <item android:id="@+id/note_list_menu_export_txt_file"
+          android:icon="@drawable/menu_export_to_txt"
+          android:title="@string/note_list_menu_export_to_txt"/>
+
+    <item android:id="@+id/note_list_menu_backup_to_sd"
+          android:title="@string/note_list_menu_backup_to_sd" />
+
+    <item android:id="@+id/note_list_menu_restore_from_sd"
+          android:title="@string/note_list_menu_restore_from_sd" />
+
+    <item android:id="@+id/note_list_menu_set_password"
+          android:title="@string/note_list_menu_set_password" />
+
+    <item android:id="@+id/note_list_menu_get_more"
+          android:title="@string/note_list_menu_get_more" />
+
+    <item android:id="@+id/note_list_menu_about"
+          android:title="@string/note_list_menu_about" />
+
+</menu>
