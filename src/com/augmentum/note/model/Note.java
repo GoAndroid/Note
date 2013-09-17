@@ -2,9 +2,10 @@ package com.augmentum.note.model;
 
 import android.provider.BaseColumns;
 
-import java.util.Calendar;
+import java.io.Serializable;
+import java.util.Date;
 
-public class Note {
+public class Note implements Serializable {
 
     public static final int NO_PARENT = -1;
     public static final int TYPE_NOTE = 1;
@@ -18,11 +19,11 @@ public class Note {
     private int mEnterDesktopFlag;
     private int mParentId;
     private int mWidgetId;
-    private Calendar mCreateTime;
-    private Calendar mModifyTime;
-    private Calendar mAlertTime;
-    private String mContent;
-    private String mSubject;
+    private Date mCreateTime = null;
+    private Date mModifyTime = null;
+    private Date mAlertTime = null;
+    private String mContent = null;
+    private String mSubject = null;
 
     public Note(){}
 
@@ -74,27 +75,27 @@ public class Note {
         mWidgetId = widgetId;
     }
 
-    public Calendar getCreateTime() {
+    public Date getCreateTime() {
         return mCreateTime;
     }
 
-    public void setCreateTime(Calendar createTime) {
+    public void setCreateTime(Date createTime) {
         mCreateTime = createTime;
     }
 
-    public Calendar getModifyTime() {
+    public Date getModifyTime() {
         return mModifyTime;
     }
 
-    public void setModifyTime(Calendar modifyTime) {
+    public void setModifyTime(Date modifyTime) {
         mModifyTime = modifyTime;
     }
 
-    public Calendar getAlertTime() {
+    public Date getAlertTime() {
         return mAlertTime;
     }
 
-    public void setAlertTime(Calendar alertTime) {
+    public void setAlertTime(Date alertTime) {
         mAlertTime = alertTime;
     }
 

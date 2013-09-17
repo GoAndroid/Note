@@ -29,9 +29,9 @@
 
     <ListView android:id="@+id/note_list_note_list"
               android:divider="@android:color/transparent"
-              android:dividerHeight="3dp"
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
+              android:cacheColorHint="@android:color/transparent"
               android:layout_below="@id/note_list_header"/>
 
     <RelativeLayout android:id="@+id/note_list_add_folder_dialog"
@@ -47,7 +47,8 @@
                   android:layout_marginTop="20dp"
                   android:text="@string/note_list_folder_add"/>
 
-        <EditText android:layout_width="match_parent"
+        <EditText android:id="@+id/note_list_folder_dialog_text"
+                  android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_centerInParent="true"
                   android:layout_marginLeft="25dp"

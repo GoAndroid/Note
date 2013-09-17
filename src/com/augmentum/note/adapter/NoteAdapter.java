@@ -1,10 +1,11 @@
 package com.augmentum.note.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.model.Note;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class NoteAdapter extends BaseAdapter {
 
     public interface OnDeleteListener {
-        public boolean isDelete();
+        public boolean isEdit();
     }
 
     private Context mContext;
@@ -43,31 +44,90 @@ public class NoteAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (convertView == null || !isMatch(convertView)) {
-            if (Note.TYPE_NOTE == mList.get(position).getType()) {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.list_note_item, null);
-            } else {
-                convertView = LayoutInflater.from(mContext).inflate(R.layout.list_folder_item, null);
+        ViewHolder holder;
+        if (convertView == null) {
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.list_note_item, null);
+            holder = new ViewHolder(convertView);
+            convertView.setTag(holder);
+
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        if (Note.TYPE_NOTE == mList.get(position).getType()) {
+            switch (mList.get(position).getColor()) {
+                case Color.YELLOW:
+                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_yellow_selector));
+                    break;
+                case Color.BLUE:
+                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_blue_selector));
+                    break;
+                case Color.RED:
+                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_pink_selector));
+                    break;
+                case Color.GREEN:
+                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_green_selector));
+                case Color.GRAY:
+                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_grey_selector));
+                    break;
             }
 
-            if (mCallback.isDelete()) {
-                convertView.findViewById(R.id.note_item_checkbox).setVisibility(View.VISIBLE);
-                convertView.findViewById(R.id.note_item_create_time).setVisibility(View.GONE);
+        } else {
+            holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.folder_item_selector));
+        }
+
+        if (!isMatch(convertView)) {
+            if (mCallback.isEdit()) {
+                holder.mCheckBox.setVisibility(View.VISIBLE);
+                holder.mTimeTextView.setVisibility(View.GONE);
             } else {
-                convertView.findViewById(R.id.note_item_checkbox).setVisibility(View.GONE);
-                convertView.findViewById(R.id.note_item_create_time).setVisibility(View.VISIBLE);
+                holder.mCheckBox.setVisibility(View.GONE);
+                holder.mTimeTextView.setVisibility(View.VISIBLE);
             }
         }
+
+        if (null != mList.get(position).getAlertTime()) {
+            holder.mAlertImageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.mAlertImageView.setVisibility(View.GONE);
+        }
+
+        if (position == mList.size() - 1) {
+            holder.mShadowImageView.setVisibility(View.VISIBLE);
+        } else {
+            holder.mShadowImageView.setVisibility(View.GONE);
+        }
+
+        holder.mTimeTextView.setText(mList.get(position).getModifyTime().toString());
+        holder.mTitleTextView.setText(mList.get(position).getContent());
 
         return convertView;
     }
 
     private boolean isMatch(View convertView) {
         boolean result = false;
-        if (View.VISIBLE == convertView.findViewById(R.id.note_item_checkbox).getVisibility() && mCallback.isDelete()) {
+        if (View.VISIBLE == convertView.findViewById(R.id.note_item_checkbox).getVisibility() && mCallback.isEdit()) {
             result = true;
         }
 
         return result;
+    }
+
+    private class ViewHolder {
+        public TextView mTitleTextView;
+        public TextView mTimeTextView;
+        public CheckBox mCheckBox;
+        public ImageView mAlertImageView;
+        public LinearLayout mWrapperLayout;
+        public ImageView mShadowImageView;
+
+        public ViewHolder(View convertView) {
+            mTitleTextView = (TextView) convertView.findViewById(R.id.note_item_title);
+            mTimeTextView = (TextView) convertView.findViewById(R.id.note_item_modify_Time);
+            mCheckBox = (CheckBox) convertView.findViewById(R.id.note_item_checkbox);
+            mAlertImageView = (ImageView) convertView.findViewById(R.id.note_item_alert);
+            mWrapperLayout = (LinearLayout) convertView.findViewById(R.id.note_item_wrapper);
+            mShadowImageView = (ImageView) convertView.findViewById(R.id.note_item_shadow);
+        }
     }
 }

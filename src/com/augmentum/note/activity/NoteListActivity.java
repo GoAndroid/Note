@@ -1,7 +1,7 @@
 package com.augmentum.note.activity;
 
+import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -9,17 +9,16 @@ import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.RelativeLayout;
+import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.adapter.NoteAdapter;
+import com.augmentum.note.dao.NoteDao;
+import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 public class NoteListActivity extends FragmentActivity implements NoteAdapter.OnDeleteListener {
@@ -29,8 +28,10 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     private RelativeLayout mAddFolderDialog;
     private boolean mIsDelete;
     private NoteAdapter mNoteAdapter;
-    private List<Note> mList;
+    private List<Note> mList = new ArrayList<Note>();
     private NoteDbHelper mDbHelper;
+    private EditText mFolderDialogText;
+    private NoteDao mNoteDao;
 
     /**
      * Called when the activity is first created.
@@ -43,12 +44,31 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
         mNoteListView = (ListView) findViewById(R.id.note_list_note_list);
         mDeleteDialog = (LinearLayout) findViewById(R.id.note_list_delete_dialog);
         mAddFolderDialog = (RelativeLayout) findViewById(R.id.note_list_add_folder_dialog);
-
-        initList();
+        mFolderDialogText = (EditText) findViewById(R.id.note_list_folder_dialog_text);
+        mDbHelper = new NoteDbHelper(this);
+        mNoteDao = new NoteDaoImpl();
 
         mNoteAdapter = new NoteAdapter(NoteListActivity.this, NoteListActivity.this, mList);
         mNoteListView.setAdapter(mNoteAdapter);
+        mNoteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (Note.TYPE_NOTE == mList.get(position).getType()) {
+                    Intent intent = new Intent();
+                    intent.setClass(NoteListActivity.this, NoteEditActivity.class);
+                    intent.putExtra("note", mList.get(position));
+                    startActivity(intent);
+                }
+            }
+        });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initList();
+        mNoteAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -119,6 +139,10 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     }
 
     public void onAddFolderOk(View view) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, mFolderDialogText.getText().toString());
+        values.put(Note.NoteEntry.COLUMN_NAME_CREATE_TIME, System.currentTimeMillis());
         mAddFolderDialog.setVisibility(View.GONE);
     }
 
@@ -128,49 +152,14 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
 
 
     @Override
-    public boolean isDelete() {
+    public boolean isEdit() {
         return mIsDelete;
     }
 
     private void initList() {
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
-        String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_TYPE,
-                Note.NoteEntry.COLUMN_NAME_COLOR,
-                Note.NoteEntry.COLUMN_NAME_CONTENT,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT,
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME
-        };
-
-        String sortOrder = Note.NoteEntry.COLUMN_NAME_TYPE + " DESC";
-
-        Cursor cursor = db.query(
-                Note.NoteEntry.TABLE_NAME,
-                projection,
-                null,
-                null,
-                null,
-                null,
-                sortOrder
-        );
-
-        Note note;
-        Calendar modifyTime;
-
-        while (cursor.moveToNext()) {
-            note = new Note();
-            note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
-            note.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
-            note.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
-            note.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
-            note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
-            modifyTime = Calendar.getInstance();
-            modifyTime.setTime(new Date(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
-            note.setModifyTime(modifyTime);
-            mList.add(note);
-        }
+        mList.clear();
+        mList.addAll(mNoteDao.query(mDbHelper));
 
     }
 }
