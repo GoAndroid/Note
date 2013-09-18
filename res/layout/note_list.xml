@@ -10,7 +10,8 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/note_header">
 
-        <TextView android:layout_width="wrap_content"
+        <TextView android:id="@+id/note_list_title"
+                  android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:text="@string/note_list_bar_title"
                   android:layout_margin="10dp"
@@ -32,6 +33,7 @@
               android:layout_height="wrap_content"
               android:layout_width="match_parent"
               android:cacheColorHint="@android:color/transparent"
+              android:listSelector="@android:color/transparent"
               android:layout_below="@id/note_list_header"/>
 
     <RelativeLayout android:id="@+id/note_list_add_folder_dialog"

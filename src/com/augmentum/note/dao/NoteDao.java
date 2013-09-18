@@ -13,6 +13,10 @@ public interface NoteDao {
 
     public void delete(NoteDbHelper dbHelper, Note note);
 
-    public List<Note> query(NoteDbHelper dbHelper);
+    public List<Note> getALL(NoteDbHelper dbHelper);
+
+    public List<Note> getChildren(NoteDbHelper dbHelper, Note note);
+
+    public int getChildCount(NoteDbHelper dbHelper, Note note);
 
 }

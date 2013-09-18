@@ -20,6 +20,10 @@ public class RemindDialogFragment extends DialogFragment implements NoteTimePick
     private Calendar mCalendar;
 
     public interface OnNoteTimePickerListener {
+
+        /**
+         *  when click the NoteTimePickerDialog  mDatePickBtn  implement it in NoteEditActivity
+         */
         public void onShowDatePicker();
     }
 

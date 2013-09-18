@@ -1,14 +1,14 @@
 package com.augmentum.note.activity;
 
-import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.adapter.NoteAdapter;
@@ -32,6 +32,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     private NoteDbHelper mDbHelper;
     private EditText mFolderDialogText;
     private NoteDao mNoteDao;
+    private boolean mIsFolderState;
 
     /**
      * Called when the activity is first created.
@@ -39,18 +40,25 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.note_list);
 
+        setContentView(R.layout.note_list);
+        mDbHelper = new NoteDbHelper(this);
+        mNoteDao = NoteDaoImpl.getInstance();
+
+        initView();
+
+    }
+
+    private void initView() {
         mNoteListView = (ListView) findViewById(R.id.note_list_note_list);
         mDeleteDialog = (LinearLayout) findViewById(R.id.note_list_delete_dialog);
         mAddFolderDialog = (RelativeLayout) findViewById(R.id.note_list_add_folder_dialog);
         mFolderDialogText = (EditText) findViewById(R.id.note_list_folder_dialog_text);
-        mDbHelper = new NoteDbHelper(this);
-        mNoteDao = new NoteDaoImpl();
 
         mNoteAdapter = new NoteAdapter(NoteListActivity.this, NoteListActivity.this, mList);
         mNoteListView.setAdapter(mNoteAdapter);
         mNoteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (Note.TYPE_NOTE == mList.get(position).getType()) {
@@ -62,11 +70,24 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
             }
         });
 
+        mFolderDialogText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
+                } else {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(mFolderDialogText.getWindowToken(), 0);
+                }
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
         initList();
         mNoteAdapter.notifyDataSetChanged();
     }
@@ -74,6 +95,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+
         getMenuInflater().inflate(R.menu.note_list_menu, menu);
 
         return true;
@@ -81,8 +103,8 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         Intent intent = new Intent();
+
         switch (item.getItemId()) {
             case R.id.note_list_menu_add:
                 intent.setClass(NoteListActivity.this, NoteEditActivity.class);
@@ -107,6 +129,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
                 return true;
             case R.id.note_list_menu_new_folder:
                 mAddFolderDialog.setVisibility(View.VISIBLE);
+                mFolderDialogText.requestFocus();
                 return true;
             case R.id.note_list_menu_restore_from_sd:
                 return true;
@@ -139,10 +162,14 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     }
 
     public void onAddFolderOk(View view) {
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, mFolderDialogText.getText().toString());
-        values.put(Note.NoteEntry.COLUMN_NAME_CREATE_TIME, System.currentTimeMillis());
+        Note note = new Note();
+        note.setSubject(mFolderDialogText.getText().toString());
+        note.setCreateTime(System.currentTimeMillis());
+        note.setType(Note.TYPE_FOLDER);
+        note.setParentId(Note.NO_PARENT);
+        mNoteDao.insert(mDbHelper, note);
+        initList();
+        mNoteAdapter.notifyDataSetChanged();
         mAddFolderDialog.setVisibility(View.GONE);
     }
 
@@ -157,9 +184,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     }
 
     private void initList() {
-
         mList.clear();
-        mList.addAll(mNoteDao.query(mDbHelper));
-
+        mList.addAll(mNoteDao.getALL(mDbHelper));
     }
 }

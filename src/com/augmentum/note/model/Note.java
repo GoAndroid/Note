@@ -3,7 +3,6 @@ package com.augmentum.note.model;
 import android.provider.BaseColumns;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class Note implements Serializable {
 
@@ -13,19 +12,28 @@ public class Note implements Serializable {
     public static final int ENTER_DESKTOP_FLAG_FALSE = 0;
     public static final int ENTER_DESKTOP_FLAG_TRUE = 1;
 
+    private boolean mIsChecked;
     private int mId;
     private int mType;
     private int mColor;
     private int mEnterDesktopFlag;
     private int mParentId;
     private int mWidgetId;
-    private Date mCreateTime = null;
-    private Date mModifyTime = null;
-    private Date mAlertTime = null;
+    private long mCreateTime;
+    private long mModifyTime;
+    private long mAlertTime;
     private String mContent = null;
     private String mSubject = null;
 
     public Note(){}
+
+    public boolean isChecked() {
+        return mIsChecked;
+    }
+
+    public void setChecked(boolean isChecked) {
+        mIsChecked = isChecked;
+    }
 
     public int getId() {
         return mId;
@@ -75,27 +83,27 @@ public class Note implements Serializable {
         mWidgetId = widgetId;
     }
 
-    public Date getCreateTime() {
+    public long getCreateTime() {
         return mCreateTime;
     }
 
-    public void setCreateTime(Date createTime) {
+    public void setCreateTime(long createTime) {
         mCreateTime = createTime;
     }
 
-    public Date getModifyTime() {
+    public long getModifyTime() {
         return mModifyTime;
     }
 
-    public void setModifyTime(Date modifyTime) {
+    public void setModifyTime(long modifyTime) {
         mModifyTime = modifyTime;
     }
 
-    public Date getAlertTime() {
+    public long getAlertTime() {
         return mAlertTime;
     }
 
-    public void setAlertTime(Date alertTime) {
+    public void setAlertTime(long alertTime) {
         mAlertTime = alertTime;
     }
 

@@ -9,6 +9,9 @@ import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.model.Note;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class NoteAdapter extends BaseAdapter {
@@ -45,6 +48,7 @@ public class NoteAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
+
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.list_note_item, null);
             holder = new ViewHolder(convertView);
@@ -55,6 +59,7 @@ public class NoteAdapter extends BaseAdapter {
         }
 
         if (Note.TYPE_NOTE == mList.get(position).getType()) {
+
             switch (mList.get(position).getColor()) {
                 case Color.YELLOW:
                     holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_yellow_selector));
@@ -72,11 +77,20 @@ public class NoteAdapter extends BaseAdapter {
                     break;
             }
 
+            setTimeText(position, holder);
+            holder.mTitleTextView.setText(mList.get(position).getContent());
         } else {
             holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.folder_item_selector));
+
+            if (0 != mList.get(position).getModifyTime()) {
+                setTimeText(position,holder);
+            }
+
+            holder.mTitleTextView.setText(mList.get(position).getSubject());
         }
 
         if (!isMatch(convertView)) {
+
             if (mCallback.isEdit()) {
                 holder.mCheckBox.setVisibility(View.VISIBLE);
                 holder.mTimeTextView.setVisibility(View.GONE);
@@ -84,9 +98,10 @@ public class NoteAdapter extends BaseAdapter {
                 holder.mCheckBox.setVisibility(View.GONE);
                 holder.mTimeTextView.setVisibility(View.VISIBLE);
             }
+
         }
 
-        if (null != mList.get(position).getAlertTime()) {
+        if (0 != mList.get(position).getAlertTime()) {
             holder.mAlertImageView.setVisibility(View.VISIBLE);
         } else {
             holder.mAlertImageView.setVisibility(View.GONE);
@@ -98,14 +113,28 @@ public class NoteAdapter extends BaseAdapter {
             holder.mShadowImageView.setVisibility(View.GONE);
         }
 
-        holder.mTimeTextView.setText(mList.get(position).getModifyTime().toString());
-        holder.mTitleTextView.setText(mList.get(position).getContent());
-
         return convertView;
+    }
+
+    private void setTimeText(int position, ViewHolder holder) {
+        SimpleDateFormat sdf;
+        Calendar currentTime = Calendar.getInstance();
+        currentTime.setTimeInMillis(System.currentTimeMillis());
+        Calendar modifyTime = Calendar.getInstance();
+        modifyTime.setTimeInMillis(mList.get(position).getModifyTime());
+
+        if (currentTime.get(Calendar.DATE) == modifyTime.get(Calendar.DATE)) {
+            sdf = new SimpleDateFormat(mContext.getResources().getString(R.string.format_time_hm));
+        } else {
+            sdf = new SimpleDateFormat(mContext.getResources().getString(R.string.format_week));
+        }
+
+        holder.mTimeTextView.setText(sdf.format(new Date(mList.get(position).getModifyTime())));
     }
 
     private boolean isMatch(View convertView) {
         boolean result = false;
+
         if (View.VISIBLE == convertView.findViewById(R.id.note_item_checkbox).getVisibility() && mCallback.isEdit()) {
             result = true;
         }

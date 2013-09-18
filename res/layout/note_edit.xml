@@ -13,16 +13,47 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/notes_header_yellow">
 
-        <TextView android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"/>
-
-        <ImageButton android:layout_width="wrap_content"
+        <ImageButton android:id="@+id/note_edit_header_change_color"
+                     android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
+                     android:layout_marginRight="5.0dip"
                      android:background="@drawable/notes_btn_changecolors"
                      android:layout_alignParentRight="true"
                      android:layout_centerVertical="true"
                      android:contentDescription="@string/note_edit_change_color"
                      android:onClick="onShowChangeColor"/>
+
+        <TextView android:id="@+id/note_edit_header_alert_time"
+                  android:layout_height="wrap_content"
+                  android:layout_width="wrap_content"
+                  android:layout_toLeftOf="@id/note_edit_header_change_color"
+                  android:layout_centerVertical="true"
+                  android:layout_marginLeft="8.0dip"
+                  android:layout_marginRight="8.0dip"
+                  android:textColor="#66333333"
+                  android:textSize="13.0sp"
+                  android:text="26 days from now"/>
+
+        <ImageView android:id="@+id/note_edit_header_alert_Image"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_toLeftOf="@id/note_edit_header_alert_time"
+                   android:layout_centerVertical="true"
+                   android:background="@drawable/tixing_2"
+                   android:contentDescription="@string/note_edit_change_color"/>
+
+        <TextView android:id="@+id/note_edit_header_modify_time"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_toLeftOf="@id/note_edit_header_alert_Image"
+                  android:layout_centerVertical="true"
+                  android:layout_marginLeft="8.0dip"
+                  android:layout_marginRight="8.0dip"
+                  android:textColor="#66333333"
+                  android:textSize="13.0sp"
+                  android:text="sep 18 07:36"/>
+
+
 
     </RelativeLayout>
 
@@ -35,13 +66,13 @@
                 android:background="@drawable/notes_bg_yellow">
 
         <EditText android:id="@+id/note_edit_content"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:gravity="top"
-                android:paddingBottom="15dp"
-                android:hint="@string/note_edit_hint"
-                android:singleLine="false"/>
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:background="@android:color/transparent"
+                  android:gravity="top"
+                  android:paddingBottom="15dp"
+                  android:hint="@string/note_edit_hint"
+                  android:singleLine="false"/>
     </ScrollView>
 
     <RadioGroup android:id="@+id/note_edit_change_color_dialog"

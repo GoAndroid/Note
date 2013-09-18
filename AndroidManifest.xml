@@ -19,7 +19,6 @@
         </activity>
         <activity android:name=".activity.NoteAboutActivity"/>
         <activity android:name=".activity.NoteEditActivity"/>
-        <activity android:name=".activity.NoteFolderActivity"/>
     </application>
 
 </manifest>

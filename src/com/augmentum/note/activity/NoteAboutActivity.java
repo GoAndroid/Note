@@ -7,6 +7,7 @@ import com.augmentum.note.R;
 public class NoteAboutActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.note_about);
     }
 }
