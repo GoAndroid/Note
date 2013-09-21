@@ -26,7 +26,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     private ListView mNoteListView;
     private LinearLayout mDeleteDialog;
     private RelativeLayout mAddFolderDialog;
-    private boolean mIsDelete;
+    private boolean mIsEditState;
     private NoteAdapter mNoteAdapter;
     private List<Note> mList = new ArrayList<Note>();
     private NoteDbHelper mDbHelper;
@@ -44,6 +44,12 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
         setContentView(R.layout.note_list);
         mDbHelper = new NoteDbHelper(this);
         mNoteDao = NoteDaoImpl.getInstance();
+        Intent intent = getIntent();
+        Note parent = (Note) intent.getSerializableExtra("parent");
+
+        if (null != parent) {
+            mIsFolderState = true;
+        }
 
         initView();
 
@@ -65,6 +71,11 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
                     Intent intent = new Intent();
                     intent.setClass(NoteListActivity.this, NoteEditActivity.class);
                     intent.putExtra("note", mList.get(position));
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent();
+                    intent.setClass(NoteListActivity.this, NoteListActivity.class);
+                    intent.putExtra("parent", mList.get(position));
                     startActivity(intent);
                 }
             }
@@ -96,7 +107,11 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        getMenuInflater().inflate(R.menu.note_list_menu, menu);
+        if (mIsFolderState) {
+            getMenuInflater().inflate(R.menu.note_folder_menu, menu);
+        } else {
+            getMenuInflater().inflate(R.menu.note_list_menu, menu);
+        }
 
         return true;
     }
@@ -117,7 +132,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
             case R.id.note_list_menu_backup_to_sd:
                 return true;
             case R.id.note_list_menu_delete:
-                mIsDelete = true;
+                mIsEditState = true;
                 mNoteAdapter.notifyDataSetChanged();
                 mDeleteDialog.setVisibility(View.VISIBLE);
                 return true;
@@ -137,6 +152,19 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
                 DialogFragment dialog = new SetPasswordDialogFragment();
                 dialog.show(getSupportFragmentManager(), "setPasswordDialog");
                 return true;
+            case R.id.note_folder_menu_new_note:
+                return true;
+            case R.id.note_folder_menu_edit_folder_title:
+                return true;
+            case R.id.note_folder_menu_move_out_of_folder:
+                return true;
+            case R.id.note_folder_menu_delete:
+                mIsEditState = true;
+                mNoteAdapter.notifyDataSetChanged();
+                mDeleteDialog.setVisibility(View.VISIBLE);
+                return true;
+            case R.id.note_folder_menu_add_shortcut:
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -150,13 +178,13 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     }
 
     public void onDeleteOk(View view) {
-        mIsDelete = false;
+        mIsEditState = false;
         mNoteAdapter.notifyDataSetChanged();
         mDeleteDialog.setVisibility(View.GONE);
     }
 
     public void onDeleteCancel(View view) {
-        mIsDelete = false;
+        mIsEditState = false;
         mNoteAdapter.notifyDataSetChanged();
         mDeleteDialog.setVisibility(View.GONE);
     }
@@ -180,7 +208,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
 
     @Override
     public boolean isEdit() {
-        return mIsDelete;
+        return mIsEditState;
     }
 
     private void initList() {

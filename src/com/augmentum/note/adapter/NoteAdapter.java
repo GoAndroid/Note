@@ -62,25 +62,25 @@ public class NoteAdapter extends BaseAdapter {
 
             switch (mList.get(position).getColor()) {
                 case Color.YELLOW:
-                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_yellow_selector));
+                    holder.mWrapperLayout.setBackgroundResource(R.drawable.note_item_bg_yellow_selector);
                     break;
                 case Color.BLUE:
-                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_blue_selector));
+                    holder.mWrapperLayout.setBackgroundResource(R.drawable.note_item_bg_blue_selector);
                     break;
                 case Color.RED:
-                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_pink_selector));
+                    holder.mWrapperLayout.setBackgroundResource(R.drawable.note_item_bg_pink_selector);
                     break;
                 case Color.GREEN:
-                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_green_selector));
+                    holder.mWrapperLayout.setBackgroundResource(R.drawable.note_item_bg_green_selector);
                 case Color.GRAY:
-                    holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.note_item_bg_grey_selector));
+                    holder.mWrapperLayout.setBackgroundResource(R.drawable.note_item_bg_grey_selector);
                     break;
             }
 
             setTimeText(position, holder);
             holder.mTitleTextView.setText(mList.get(position).getContent());
         } else {
-            holder.mWrapperLayout.setBackground(mContext.getResources().getDrawable(R.drawable.folder_item_selector));
+            holder.mWrapperLayout.setBackgroundResource(R.drawable.folder_item_selector);
 
             if (0 != mList.get(position).getModifyTime()) {
                 setTimeText(position,holder);
