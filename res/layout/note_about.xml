@@ -36,7 +36,7 @@
                   android:text="v1.5.1"
                   android:textColor="#ffcc0000"
                   android:layout_marginLeft="8dp"
-                  android:textSize="16.0sp"
+                  android:textSize="16sp"
                   android:layout_alignBottom="@id/note_about_app_name"
                   android:layout_toRightOf="@id/note_about_app_name"/>
     </RelativeLayout>

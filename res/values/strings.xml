@@ -103,7 +103,7 @@ www.xiaomi.com"</string>
     <string name="note_edit_flag_off">Delete mark</string>
     <string name="note_edit_delete_confirm_hasNoEmptyFolder">"Confirm to delete folder
 and its notes？"</string>
-    <string name="note_edit_delete_confirm_ok">Ok</string>
+    <string name="note_edit_delete_confirm_ok">OK</string>
     <string name="note_edit_delete_confirm_back">Cancel</string>
     <string name="note_alert_ok">Got it</string>
     <string name="note_alert_enter">Take a look</string>

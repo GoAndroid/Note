@@ -70,13 +70,13 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
 
             switch (mNote.getColor()) {
                 case Color.YELLOW:
-                    mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_yellow));
-                    mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_yellow));
+                    mHeaderLayout.setBackgroundResource(R.drawable.notes_header_yellow);
+                    mScrollView.setBackgroundResource(R.drawable.notes_bg_yellow);
                     mNote.setColor(Color.YELLOW);
                     break;
                 case Color.BLUE:
-                    mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_blue));
-                    mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_blue));
+                    mHeaderLayout.setBackgroundResource(R.drawable.notes_header_blue);
+                    mScrollView.setBackgroundResource(R.drawable.notes_bg_blue);
                     mNote.setColor(Color.BLUE);
                     break;
                 case Color.RED:
