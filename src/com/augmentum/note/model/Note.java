@@ -14,7 +14,7 @@ public class Note implements Serializable {
     public static final int ENTER_DESKTOP_FLAG_FALSE = 0;
     public static final int ENTER_DESKTOP_FLAG_TRUE = 1;
 
-    private boolean mIsChecked;
+    private int mChildCount;
     private int mId;
     private int mType;
     private int mColor;
@@ -29,12 +29,42 @@ public class Note implements Serializable {
 
     public Note(){}
 
-    public boolean isChecked() {
-        return mIsChecked;
+    @Override
+    public boolean equals(Object other) {
+
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null) {
+            return false;
+        }
+
+        if (!(other instanceof Note)) {
+            return false;
+        }
+
+        final Note note = (Note) other;
+
+        if (getId() != note.getId()) {
+            return false;
+        }
+
+        return true;
+
     }
 
-    public void setChecked(boolean isChecked) {
-        mIsChecked = isChecked;
+    @Override
+    public int hashCode() {
+        return getId();
+    }
+
+    public int getChildCount() {
+        return mChildCount;
+    }
+
+    public void setChildCount(int childCount) {
+        mChildCount = childCount;
     }
 
     public int getId() {

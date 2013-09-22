@@ -10,24 +10,43 @@ import com.augmentum.note.R;
 import com.augmentum.note.model.Note;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class NoteAdapter extends BaseAdapter {
 
-    public interface OnDeleteListener {
-        public boolean isEdit();
+    private Context mContext;
+    private List<Note> mList;
+    private Set<Note> mEditSet = new HashSet<Note>();
+    private boolean mIsDeleteState;
+    private boolean mIsMoveState;
+
+    public NoteAdapter(Context context, List<Note> list) {
+        mContext = context;
+        mList = list;
     }
 
-    private Context mContext;
-    private OnDeleteListener mCallback;
-    private List<Note> mList;
+    public boolean isDeleteState() {
+        return mIsDeleteState;
+    }
 
-    public NoteAdapter(Context context, OnDeleteListener callback, List<Note> list) {
-        mContext = context;
-        mCallback = callback;
-        mList = list;
+    public void setDeleteState(boolean isDeleteState) {
+        mIsDeleteState = isDeleteState;
+    }
+
+    public boolean isMoveState() {
+        return mIsMoveState;
+    }
+
+    public void setMoveState(boolean isMoveState) {
+        mIsMoveState = isMoveState;
+    }
+
+    public Set<Note> getEditSet() {
+        return mEditSet;
+    }
+
+    public void setEditSet(Set<Note> editSet) {
+        mEditSet = editSet;
     }
 
     @Override
@@ -45,13 +64,28 @@ public class NoteAdapter extends BaseAdapter {
         return position;
     }
 
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
 
         if (convertView == null) {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.list_note_item, null);
             holder = new ViewHolder(convertView);
+
+            holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (mIsMoveState || mIsMoveState) {
+                        if (isChecked) {
+                            mEditSet.add(mList.get(position));
+                        } else {
+                            mEditSet.remove(mList.get(position));
+                        }
+                    }
+                }
+            });
+
             convertView.setTag(holder);
 
         } else {
@@ -82,20 +116,31 @@ public class NoteAdapter extends BaseAdapter {
         } else {
             holder.mWrapperLayout.setBackgroundResource(R.drawable.folder_item_selector);
 
-            if (0 != mList.get(position).getModifyTime()) {
-                setTimeText(position,holder);
+            if (0 < mList.get(position).getModifyTime()) {
+                setTimeText(position, holder);
+            } else {
+                holder.mTimeTextView.setText(null);
             }
 
-            holder.mTitleTextView.setText(mList.get(position).getSubject());
+            holder.mTitleTextView.setText(mList.get(position).getSubject() +
+                    " (" + mList.get(position).getChildCount() + ") ");
         }
 
         if (!isMatch(convertView)) {
 
-            if (mCallback.isEdit()) {
+            if (mIsDeleteState) {
                 holder.mCheckBox.setVisibility(View.VISIBLE);
                 holder.mTimeTextView.setVisibility(View.GONE);
+            } else if (mIsMoveState) {
+
+                if (Note.TYPE_NOTE == mList.get(position).getType()) {
+                    holder.mCheckBox.setVisibility(View.VISIBLE);
+                    holder.mTimeTextView.setVisibility(View.GONE);
+                }
+
             } else {
                 holder.mCheckBox.setVisibility(View.GONE);
+                holder.mCheckBox.setChecked(false);
                 holder.mTimeTextView.setVisibility(View.VISIBLE);
             }
 
@@ -135,7 +180,8 @@ public class NoteAdapter extends BaseAdapter {
     private boolean isMatch(View convertView) {
         boolean result = false;
 
-        if (View.VISIBLE == convertView.findViewById(R.id.note_item_checkbox).getVisibility() && mCallback.isEdit()) {
+        if (View.VISIBLE == convertView.findViewById(R.id.note_item_checkbox).getVisibility()
+                && (mIsDeleteState || mIsMoveState)) {
             result = true;
         }
 

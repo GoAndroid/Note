@@ -99,7 +99,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1.0"
-                android:background="@drawable/note_list_ok_selector"
+                android:background="@drawable/note_list_delete_ok_selecter"
                 android:text="@string/button_delete"
                 android:onClick="onDeleteOk"/>
 
@@ -110,6 +110,34 @@
                 android:background="@drawable/note_list_cancel_selector"
                 android:text="@string/button_back"
                 android:onClick="onDeleteCancel"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/note_list_move_dialog"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:background="@drawable/vol_bg"
+                  android:layout_alignParentBottom="true"
+                  android:paddingLeft="5dp"
+                  android:paddingRight="5dp"
+                  android:visibility="gone"
+                  android:gravity="center">
+
+        <Button android:id="@+id/note_list_move_ok_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:background="@drawable/note_list_ok_selector"
+                android:text="@string/note_list_menu_move_into_folder"
+                android:onClick="onMoveOk"/>
+
+        <Button android:id="@+id/note_list_move_cancel_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:background="@drawable/note_list_cancel_selector"
+                android:text="@string/button_back"
+                android:onClick="onMoveCancel"/>
 
     </LinearLayout>
 

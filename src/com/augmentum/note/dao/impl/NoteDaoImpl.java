@@ -70,7 +70,7 @@ public class NoteDaoImpl implements NoteDao {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         if (Note.TYPE_FOLDER == note.getType()) {
-            String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ? and " + Note.NoteEntry._ID + " = ?";
+            String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ? or " + Note.NoteEntry._ID + " = ?";
             String[] selectionArgs = {String.valueOf(note.getId()), String.valueOf(note.getId())};
             db.delete(Note.NoteEntry.TABLE_NAME, selection, selectionArgs);
         } else {
@@ -119,10 +119,10 @@ public class NoteDaoImpl implements NoteDao {
             note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
             note.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
 
-            note.setCreateTime(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
+            note.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
 
             if (Note.TYPE_NOTE == note.getType()) {
-                note.setModifyTime(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
+                note.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
                 note.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
                 note.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
                 note.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
@@ -130,11 +130,9 @@ public class NoteDaoImpl implements NoteDao {
 
             if (Note.TYPE_FOLDER == note.getType()) {
                 String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
-                note.setSubject(subject + "(" + getChildCount(dbHelper, note) + ")");
-
-                if (0 < getChildCount(dbHelper, note)) {
-                    note.setModifyTime(getChildrenModifyTime(dbHelper, note));
-                }
+                note.setSubject(subject);
+                note.setChildCount(getChildCount(dbHelper, note));
+                note.setModifyTime(getChildrenModifyTime(dbHelper, note));
             }
 
             list.add(note);
@@ -146,7 +144,7 @@ public class NoteDaoImpl implements NoteDao {
     }
 
     private long getChildrenModifyTime(NoteDbHelper dbHelper, Note parent) {
-        long result;
+        long result = 0;
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
@@ -168,11 +166,15 @@ public class NoteDaoImpl implements NoteDao {
                 orderBy
         );
 
-        result = cursor.getInt(0);
+        if (cursor.moveToFirst()){
+            if (-1 != cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)) {
+                result = cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME));
+            }
+        }
+
         cursor.close();
 
         return result;
-
     }
 
     @Override
@@ -214,12 +216,13 @@ public class NoteDaoImpl implements NoteDao {
             noteTemp.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
             noteTemp.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
             noteTemp.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
-            noteTemp.setCreateTime(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
-            noteTemp.setModifyTime(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
+            noteTemp.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
+            noteTemp.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
             list.add(noteTemp);
         }
 
         cursor.close();
+
         return list;
     }
 
@@ -247,6 +250,44 @@ public class NoteDaoImpl implements NoteDao {
         );
 
         result = cursor.getCount();
+        cursor.close();
+
+        return result;
+    }
+
+    @Override
+    public List<Note> getFolder(NoteDbHelper dbHelper) {
+        List<Note> result = new ArrayList<Note>();
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String[] projection = {
+                Note.NoteEntry._ID,
+                Note.NoteEntry.COLUMN_NAME_SUBJECT
+        };
+
+        String selection = Note.NoteEntry.COLUMN_NAME_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(Note.TYPE_FOLDER)};
+
+        Cursor cursor = db.query(
+                Note.NoteEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        Note note;
+
+        while (cursor.moveToNext()) {
+            note = new Note();
+            note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
+            note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
+            result.add(note);
+        }
+
         cursor.close();
 
         return result;

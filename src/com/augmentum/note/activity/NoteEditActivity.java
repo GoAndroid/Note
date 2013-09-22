@@ -5,10 +5,9 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import com.augmentum.note.R;
@@ -16,11 +15,15 @@ import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.fragment.DatePickerDialogFragment;
-import com.augmentum.note.fragment.DeleteDiaogFragment;
+import com.augmentum.note.fragment.DeleteDialogFragment;
 import com.augmentum.note.fragment.RemindDialogFragment;
 import com.augmentum.note.model.Note;
 
-public class NoteEditActivity extends FragmentActivity implements RemindDialogFragment.OnNoteTimePickerListener, DatePickerDialogFragment.OnDateListener {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class NoteEditActivity extends FragmentActivity implements RemindDialogFragment.OnNoteTimePickerListener,
+        DatePickerDialogFragment.OnDateListener {
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
@@ -29,7 +32,10 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
     private RelativeLayout mHeaderLayout;
     private ScrollView mScrollView;
     private EditText mEditText;
-    private NoteDao noteDao;
+    private TextView mAlertTimeTextView;
+    private TextView mModifyTimeTextView;
+    private NoteDao mNoteDao;
+    private Note mParent;
 
     /**
      * Called when the activity is first created.
@@ -39,7 +45,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_edit);
         mDbHelper = new NoteDbHelper(this);
-        noteDao = NoteDaoImpl.getInstance();
+        mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
 
@@ -55,9 +61,12 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
         mHeaderLayout = (RelativeLayout) findViewById(R.id.note_edit_header);
         mScrollView = (ScrollView) findViewById(R.id.note_edit_scroll);
         mEditText = (EditText) findViewById(R.id.note_edit_content);
+        mAlertTimeTextView = (TextView) findViewById(R.id.note_edit_header_alert_time);
+        mModifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
-        mNote = (Note) intent.getSerializableExtra("note");
+        mParent = (Note) intent.getSerializableExtra(NoteListActivity.PARENT_TAG);
+        mNote = (Note) intent.getSerializableExtra(NoteListActivity.NOTE_TAG);
 
         if (null == mNote) {
             mNote = new Note();
@@ -65,8 +74,12 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
             mNote.setType(Note.TYPE_NOTE);
             mNote.setParentId(Note.NO_PARENT);
             mNote.setColor(Color.YELLOW);
+            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.format_datetime_mdhm));
+            mModifyTimeTextView.setText(sdf.format(new Date(System.currentTimeMillis())));
         } else {
             mEditText.setText(mNote.getContent());
+            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.format_datetime_mdhm));
+            mModifyTimeTextView.setText(sdf.format(new Date(mNote.getModifyTime())));
 
             switch (mNote.getColor()) {
                 case Color.YELLOW:
@@ -97,20 +110,12 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
             }
         }
 
-        mEditText.addTextChangedListener(new TextWatcher() {
+        mScrollView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //To change body of implemented methods use File | Settings | File Templates.
+            public boolean onTouch(View v, MotionEvent event) {
+                mChangeColorRadioGroup.setVisibility(View.GONE);
+                mChangeFontDialog.setVisibility(View.GONE);
+                return false;
             }
         });
 
@@ -176,7 +181,22 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
             case R.id.note_edit_menu_checklist:
                 return true;
             case R.id.note_edit_menu_delete:
-                DialogFragment deleteDialog = new DeleteDiaogFragment();
+                DeleteDialogFragment deleteDialog = new DeleteDialogFragment();
+                deleteDialog.setMessage(R.string.dialog_delete_confirm);
+
+                deleteDialog.setListener(new DeleteDialogFragment.OnDeleteListener() {
+
+                    @Override
+                    public void onPositiveClick() {
+
+                        if (0 < mNote.getId()) {
+                            mNoteDao.delete(mDbHelper, mNote);
+                        }
+
+                        finish();
+                    }
+                });
+
                 deleteDialog.show(getSupportFragmentManager(), "deleteDialog");
                 return true;
             case R.id.note_edit_menu_new_note:
@@ -194,23 +214,24 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
     }
 
     @Override
-    public void onBackPressed() {
-        super.onBackPressed();
+    public void onPause() {
+        super.onPause();
 
-        mNote.setContent(mEditText.getText().toString());
-        mNote.setModifyTime(System.currentTimeMillis());
+        if (null != mEditText.getText() || !"".equals(mEditText.getText())) {
+            mNote.setContent(mEditText.getText().toString());
+            mNote.setModifyTime(System.currentTimeMillis());
 
-        if (0 < mNote.getId()) {
-            noteDao.update(mDbHelper, mNote);
-        } else {
-            noteDao.insert(mDbHelper, mNote);
+            if (null != mParent) {
+                mNote.setParentId(mParent.getId());
+            }
+
+            if (0 < mNote.getId()) {
+                mNoteDao.update(mDbHelper, mNote);
+            } else {
+                mNoteDao.insert(mDbHelper, mNote);
+            }
         }
-    }
 
-    @Override
-    protected void onStop() {
-
-        super.onStop();
     }
 
     /**
@@ -247,17 +268,6 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
         }
     }
 
-    public void onScrollView(View view) {
-        onShowChangeColor(view);
-
-        if (View.GONE == mChangeFontDialog.getVisibility()) {
-            mChangeFontDialog.setVisibility(View.VISIBLE);
-        } else {
-            mChangeFontDialog.setVisibility(View.GONE);
-        }
-    }
-
-
     @Override
     public void onShowDatePicker() {
         RemindDialogFragment remindDialog = (RemindDialogFragment) getSupportFragmentManager().findFragmentByTag("remindDialog");
@@ -270,4 +280,5 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
         RemindDialogFragment remindDialog = (RemindDialogFragment) getSupportFragmentManager().findFragmentByTag("remindDialog");
         remindDialog.onDateSet(view, year, monthOfYear, dayOfMonth);
     }
+
 }

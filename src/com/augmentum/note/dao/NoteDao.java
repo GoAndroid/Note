@@ -19,4 +19,6 @@ public interface NoteDao {
 
     public int getChildCount(NoteDbHelper dbHelper, Note note);
 
+    public List<Note> getFolder(NoteDbHelper dbHelper);
+
 }
