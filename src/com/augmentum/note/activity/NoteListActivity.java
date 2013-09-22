@@ -33,6 +33,7 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
     private EditText mFolderDialogText;
     private NoteDao mNoteDao;
     private boolean mIsFolderState;
+    private Note parent;
 
     /**
      * Called when the activity is first created.
@@ -44,14 +45,17 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
         setContentView(R.layout.note_list);
         mDbHelper = new NoteDbHelper(this);
         mNoteDao = NoteDaoImpl.getInstance();
+        
+        initView();
+        
         Intent intent = getIntent();
-        Note parent = (Note) intent.getSerializableExtra("parent");
+        parent = (Note) intent.getSerializableExtra("parent");
 
         if (null != parent) {
             mIsFolderState = true;
+            TextView headerTextView = (TextView) findViewById(R.id.note_list_header);
+            headerTextView.setText(parent.getSubject());
         }
-
-        initView();
 
     }
 
@@ -213,6 +217,10 @@ public class NoteListActivity extends FragmentActivity implements NoteAdapter.On
 
     private void initList() {
         mList.clear();
-        mList.addAll(mNoteDao.getALL(mDbHelper));
+        if (mIsFolderState) {
+            mList.addAll(mNoteDao.getChildren(mDbHelper, parent));
+        } else {
+            mList.addAll(mNoteDao.getALL(mDbHelper));
+        }
     }
 }

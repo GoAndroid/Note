@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class Note implements Serializable {
 
+    private static final long serialVersionUID = -2454978783620245981L;
+    
     public static final int NO_PARENT = -1;
     public static final int TYPE_NOTE = 1;
     public static final int TYPE_FOLDER = 2;
