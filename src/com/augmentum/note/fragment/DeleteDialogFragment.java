@@ -1,6 +1,5 @@
 package com.augmentum.note.fragment;
 
-import android.R;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -24,10 +23,6 @@ public class DeleteDialogFragment extends DialogFragment {
         mMessageId = messageId;
     }
 
-    public OnDeleteListener getListener() {
-        return mListener;
-    }
-
     public void setListener(OnDeleteListener listener) {
         mListener = listener;
     }
@@ -37,14 +32,14 @@ public class DeleteDialogFragment extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(getMessageId());
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 mListener.onPositiveClick();
             }
         });
 
-        builder.setNegativeButton(R.string.cancel, null);
+        builder.setNegativeButton(android.R.string.cancel, null);
 
         return builder.create();
     }

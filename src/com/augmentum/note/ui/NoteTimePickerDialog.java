@@ -85,7 +85,7 @@ public class NoteTimePickerDialog extends AlertDialog implements DialogInterface
                 (LayoutInflater) themeContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.note_time_picker_dialog, null);
         setView(view);
-        mDatePickerBtn = (Button) view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn);
+        mDatePickerBtn = (Button) (view != null ? view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn) : null);
 
         mDatePickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override

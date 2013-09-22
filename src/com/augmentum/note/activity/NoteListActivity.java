@@ -16,6 +16,7 @@ import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.fragment.DeleteDialogFragment;
+import com.augmentum.note.fragment.ExportDialogFragment;
 import com.augmentum.note.fragment.MoveDialogFragment;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
@@ -146,6 +147,14 @@ public class NoteListActivity extends FragmentActivity {
                 mDeleteDialog.setVisibility(View.VISIBLE);
                 return true;
             case R.id.note_list_menu_export_txt_file:
+                ExportDialogFragment exportDialogFragment = new ExportDialogFragment();
+                exportDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
+                    @Override
+                    public void onItemClick() {
+                        // TODO
+                    }
+                });
+                exportDialogFragment.show(getSupportFragmentManager(), "exportDialogFragment");
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -245,7 +254,7 @@ public class NoteListActivity extends FragmentActivity {
             moveDialogFragment.setListener(new MoveDialogFragment.OnMoveListener() {
 
                 @Override
-                public void onPositiveClick(Note parent) {
+                public void onItemClick(Note parent) {
 
                     for (Note note : mNoteAdapter.getEditSet()) {
                         note.setParentId(parent.getId());
@@ -285,6 +294,11 @@ public class NoteListActivity extends FragmentActivity {
 
     public void onAddFolderOk(View view) {
         Note note = new Note();
+
+        if (null == mFolderDialogText.getText() || "".equals(mFolderDialogText.getText().toString()))  {
+            return;
+        }
+
         note.setSubject(mFolderDialogText.getText().toString());
         note.setCreateTime(System.currentTimeMillis());
         note.setType(Note.TYPE_FOLDER);

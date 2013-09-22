@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="note_list_export">
+        <item>至SD卡</item>
+        <item>至邮箱</item>
+    </string-array>
     <string name="app_name">XM Notes</string>
     <string name="app_widget2x2">XM Notes 2x2</string>
     <string name="app_widget4x4">XM Notes 4x4</string>

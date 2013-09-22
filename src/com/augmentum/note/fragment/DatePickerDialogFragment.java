@@ -20,7 +20,7 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
 
     public DatePickerDialogFragment(Calendar calendar) {
         mCalendar = calendar;
-    };
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {

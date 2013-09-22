@@ -46,11 +46,7 @@ public class Note implements Serializable {
 
         final Note note = (Note) other;
 
-        if (getId() != note.getId()) {
-            return false;
-        }
-
-        return true;
+        return getId() == note.getId();
 
     }
 

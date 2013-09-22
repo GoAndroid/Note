@@ -37,7 +37,9 @@ public class NoteDaoImpl implements NoteDao {
             values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
         }
 
-        long newRowId = db.insert(Note.NoteEntry.TABLE_NAME, null, values);
+        if (db != null) {
+            db.insert(Note.NoteEntry.TABLE_NAME, null, values);
+        }
     }
 
     @Override
@@ -57,12 +59,14 @@ public class NoteDaoImpl implements NoteDao {
         String selection = Note.NoteEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(note.getId())};
 
-        db.update(
-                Note.NoteEntry.TABLE_NAME,
-                values,
-                selection,
-                selectionArgs
-        );
+        if (null != db) {
+            db.update(
+                    Note.NoteEntry.TABLE_NAME,
+                    values,
+                    selection,
+                    selectionArgs
+            );
+        }
     }
 
     @Override
@@ -72,11 +76,19 @@ public class NoteDaoImpl implements NoteDao {
         if (Note.TYPE_FOLDER == note.getType()) {
             String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ? or " + Note.NoteEntry._ID + " = ?";
             String[] selectionArgs = {String.valueOf(note.getId()), String.valueOf(note.getId())};
-            db.delete(Note.NoteEntry.TABLE_NAME, selection, selectionArgs);
+
+            if (null != db) {
+                db.delete(Note.NoteEntry.TABLE_NAME, selection, selectionArgs);
+            }
+
         } else {
             String selection = Note.NoteEntry._ID + " = ?";
             String[] selectionArgs = {String.valueOf(note.getId())};
-            db.delete(Note.NoteEntry.TABLE_NAME, selection, selectionArgs);
+
+            if (null != db) {
+                db.delete(Note.NoteEntry.TABLE_NAME, selection, selectionArgs);
+            }
+
         }
 
     }
@@ -102,7 +114,9 @@ public class NoteDaoImpl implements NoteDao {
         String sortOrder = Note.NoteEntry.COLUMN_NAME_TYPE + " DESC, " +
                 Note.NoteEntry.COLUMN_NAME_CREATE_TIME + " DESC";
 
-        Cursor cursor = db.query(
+        Cursor cursor = null;
+
+        if (db != null) cursor = db.query(
                 Note.NoteEntry.TABLE_NAME,
                 projection,
                 selection,
@@ -114,7 +128,7 @@ public class NoteDaoImpl implements NoteDao {
 
         Note note;
 
-        while (cursor.moveToNext()) {
+        while (cursor != null && cursor.moveToNext()) {
             note = new Note();
             note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
             note.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
@@ -138,7 +152,9 @@ public class NoteDaoImpl implements NoteDao {
             list.add(note);
         }
 
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return list;
     }
@@ -156,23 +172,29 @@ public class NoteDaoImpl implements NoteDao {
         String[] selectionArgs = {String.valueOf(parent.getId())};
         String orderBy = Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + " DESC";
 
-        Cursor cursor = db.query(
-                Note.NoteEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                orderBy
-        );
+        Cursor cursor = null;
 
-        if (cursor.moveToFirst()){
+        if (db != null) {
+            cursor = db.query(
+                    Note.NoteEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    orderBy
+            );
+        }
+
+        if (cursor != null && cursor.moveToFirst()) {
             if (-1 != cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)) {
                 result = cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME));
             }
         }
 
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return result;
     }
@@ -196,19 +218,23 @@ public class NoteDaoImpl implements NoteDao {
         String[] selectionArgs = {String.valueOf(parent.getId())};
         String sortOrder = Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + " DESC";
 
-        Cursor cursor = db.query(
-                Note.NoteEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                sortOrder
-        );
+        Cursor cursor = null;
+
+        if (db != null)  {
+            cursor = db.query(
+                    Note.NoteEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    sortOrder
+            );
+        }
 
         Note noteTemp;
 
-        while (cursor.moveToNext()) {
+        while (cursor != null && cursor.moveToNext()) {
             noteTemp = new Note();
             noteTemp.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
             noteTemp.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
@@ -221,7 +247,9 @@ public class NoteDaoImpl implements NoteDao {
             list.add(noteTemp);
         }
 
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return list;
     }
@@ -239,18 +267,25 @@ public class NoteDaoImpl implements NoteDao {
         String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ?";
         String[] selectionArgs = {String.valueOf(parent.getId())};
 
-        Cursor cursor = db.query(
-                Note.NoteEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
+        Cursor cursor = null;
 
-        result = cursor.getCount();
-        cursor.close();
+        if (db != null) {
+            cursor = db.query(
+                    Note.NoteEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+        }
+
+        result = cursor != null ? cursor.getCount() : 0;
+
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return result;
     }
@@ -269,26 +304,32 @@ public class NoteDaoImpl implements NoteDao {
         String selection = Note.NoteEntry.COLUMN_NAME_TYPE + " = ?";
         String[] selectionArgs = {String.valueOf(Note.TYPE_FOLDER)};
 
-        Cursor cursor = db.query(
-                Note.NoteEntry.TABLE_NAME,
-                projection,
-                selection,
-                selectionArgs,
-                null,
-                null,
-                null
-        );
+        Cursor cursor = null;
+
+        if (db != null) {
+            cursor = db.query(
+                    Note.NoteEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+        }
 
         Note note;
 
-        while (cursor.moveToNext()) {
+        while (cursor != null && cursor.moveToNext()) {
             note = new Note();
             note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
             note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
             result.add(note);
         }
 
-        cursor.close();
+        if (cursor != null) {
+            cursor.close();
+        }
 
         return result;
     }

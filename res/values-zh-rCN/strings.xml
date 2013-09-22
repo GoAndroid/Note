@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="note_list_export">
+        <item>至SD卡</item>
+        <item>至邮箱</item>
+    </string-array>
     <string name="app_name">小米便签</string>
     <string name="app_widget2x2">小米便签2x2</string>
     <string name="app_widget4x4">小米便签4x4</string>

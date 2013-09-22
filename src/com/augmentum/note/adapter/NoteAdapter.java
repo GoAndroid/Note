@@ -76,7 +76,7 @@ public class NoteAdapter extends BaseAdapter {
             holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (mIsMoveState || mIsMoveState) {
+                    if (mIsDeleteState || mIsMoveState) {
                         if (isChecked) {
                             mEditSet.add(mList.get(position));
                         } else {
@@ -86,7 +86,9 @@ public class NoteAdapter extends BaseAdapter {
                 }
             });
 
-            convertView.setTag(holder);
+            if (convertView != null) {
+                convertView.setTag(holder);
+            }
 
         } else {
             holder = (ViewHolder) convertView.getTag();
@@ -146,13 +148,13 @@ public class NoteAdapter extends BaseAdapter {
 
         }
 
-        if (0 != mList.get(position).getAlertTime()) {
+        if (0 < mList.get(position).getAlertTime()) {
             holder.mAlertImageView.setVisibility(View.VISIBLE);
         } else {
             holder.mAlertImageView.setVisibility(View.GONE);
         }
 
-        if (position == mList.size() - 1) {
+        if (position == mList.size() - 1 && Note.TYPE_NOTE == mList.get(position).getType()) {
             holder.mShadowImageView.setVisibility(View.VISIBLE);
         } else {
             holder.mShadowImageView.setVisibility(View.GONE);

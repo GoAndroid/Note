@@ -217,7 +217,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
     public void onPause() {
         super.onPause();
 
-        if (null != mEditText.getText() || !"".equals(mEditText.getText())) {
+        if (null != mEditText.getText() || !"".equals(mEditText.getText().toString())) {
             mNote.setContent(mEditText.getText().toString());
             mNote.setModifyTime(System.currentTimeMillis());
 
@@ -239,7 +239,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
      * visible change it to gone, when the change color RadioGroup is gone change it
      * to visible and change the checked button of the RadioGroup.
      *
-     * @param view
+     * @param view from system
      */
     public void onShowChangeColor(View view) {
 
