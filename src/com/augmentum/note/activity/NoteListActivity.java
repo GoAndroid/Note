@@ -27,6 +27,12 @@ public class NoteListActivity extends FragmentActivity {
 
     public static final String PARENT_TAG = "Parent";
     public static final String NOTE_TAG = "note";
+    public static final String DELETE_DIALOG_FRAGMENT = "deleteDialogFragment";
+    public static final String MOVE_DIALOG_FRAGMENT = "moveDialogFragment";
+    public static final String EXPORT_SD_FRAGMENT = "exportSdFragment";
+    public static final String EXPORT_TXT_FRAGMENT = "exportTxtFragment";
+    public static final String SET_PASSWORD_DIALOG_FRAGMENT = "setPasswordDialogFragment";
+
     private LinearLayout mDeleteDialog;
     private LinearLayout mMoveDialog;
     private RelativeLayout mAddFolderDialog;
@@ -73,6 +79,7 @@ public class NoteListActivity extends FragmentActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 if (Note.TYPE_NOTE == mList.get(position).getType()) {
                     Intent intent = new Intent();
                     intent.setClass(NoteListActivity.this, NoteEditActivity.class);
@@ -84,12 +91,14 @@ public class NoteListActivity extends FragmentActivity {
                     intent.putExtra(PARENT_TAG, mList.get(position));
                     startActivity(intent);
                 }
+
             }
         });
 
         mFolderDialogText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+
                 if (hasFocus) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(0, InputMethodManager.HIDE_NOT_ALWAYS);
@@ -97,6 +106,7 @@ public class NoteListActivity extends FragmentActivity {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(mFolderDialogText.getWindowToken(), 0);
                 }
+
             }
         });
     }
@@ -143,7 +153,7 @@ public class NoteListActivity extends FragmentActivity {
                         // TODO
                     }
                 });
-                exportSdDialogFragment.show(getSupportFragmentManager(), "exportSd");
+                exportSdDialogFragment.show(getSupportFragmentManager(), EXPORT_SD_FRAGMENT);
                 return true;
             case R.id.note_list_menu_delete:
                 mNoteAdapter.setDeleteState(true);
@@ -158,7 +168,7 @@ public class NoteListActivity extends FragmentActivity {
                         // TODO
                     }
                 });
-                exportDialogFragment.show(getSupportFragmentManager(), "exportTxt");
+                exportDialogFragment.show(getSupportFragmentManager(), EXPORT_TXT_FRAGMENT);
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -175,7 +185,7 @@ public class NoteListActivity extends FragmentActivity {
                 return true;
             case R.id.note_list_menu_set_password:
                 DialogFragment dialog = new SetPasswordDialogFragment();
-                dialog.show(getSupportFragmentManager(), "setPasswordDialog");
+                dialog.show(getSupportFragmentManager(), SET_PASSWORD_DIALOG_FRAGMENT);
                 return true;
             case R.id.note_folder_menu_new_note:
                 intent.setClass(NoteListActivity.this, NoteEditActivity.class);
@@ -230,7 +240,7 @@ public class NoteListActivity extends FragmentActivity {
                     deleteNote();
                 }
             });
-            deleteDialogFragment.show(getSupportFragmentManager(), "deleteDialogFragment");
+            deleteDialogFragment.show(getSupportFragmentManager(), DELETE_DIALOG_FRAGMENT);
         } else {
             deleteNote();
         }
@@ -277,7 +287,7 @@ public class NoteListActivity extends FragmentActivity {
                 }
             });
 
-            moveDialogFragment.show(getSupportFragmentManager(), "moveDialogFragment");
+            moveDialogFragment.show(getSupportFragmentManager(), MOVE_DIALOG_FRAGMENT);
         } else {
 
             for (Note note : mNoteAdapter.getEditSet()) {

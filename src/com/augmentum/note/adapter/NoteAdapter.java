@@ -25,16 +25,8 @@ public class NoteAdapter extends BaseAdapter {
         mList = list;
     }
 
-    public boolean isDeleteState() {
-        return mIsDeleteState;
-    }
-
     public void setDeleteState(boolean isDeleteState) {
         mIsDeleteState = isDeleteState;
-    }
-
-    public boolean isMoveState() {
-        return mIsMoveState;
     }
 
     public void setMoveState(boolean isMoveState) {
@@ -43,10 +35,6 @@ public class NoteAdapter extends BaseAdapter {
 
     public Set<Note> getEditSet() {
         return mEditSet;
-    }
-
-    public void setEditSet(Set<Note> editSet) {
-        mEditSet = editSet;
     }
 
     @Override

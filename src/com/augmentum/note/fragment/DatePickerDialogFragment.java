@@ -33,6 +33,11 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
             mCalendar = (Calendar) savedInstanceState.getSerializable(CALENDAR);
         }
 
+        if (null == mCalendar) {
+            mCalendar = Calendar.getInstance();
+            mCalendar.setTimeInMillis(System.currentTimeMillis());
+        }
+
         int year = mCalendar.get(Calendar.YEAR);
         int month = mCalendar.get(Calendar.MONTH);
         int day = mCalendar.get(Calendar.DAY_OF_MONTH);

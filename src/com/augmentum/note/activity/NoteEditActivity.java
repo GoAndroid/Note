@@ -12,17 +12,19 @@ import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
-import com.augmentum.note.fragment.AlertDialogFragment;
+import com.augmentum.note.fragment.AlertTimeDialogFragment;
 import com.augmentum.note.fragment.DatePickerDialogFragment;
 import com.augmentum.note.fragment.DeleteDialogFragment;
 import com.augmentum.note.model.Note;
+import com.augmentum.note.util.CalendarUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
-public class NoteEditActivity extends FragmentActivity implements AlertDialogFragment.OnNoteTimePickerListener,
+public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener,
         DatePickerDialogFragment.OnDateListener {
+
+    public static final String DATE_PICKER_DIALOG_FRAGMENT = "datePickerDialogFragment";
+    public static final String ALERT_DIALOG_FRAGMENT = "alertDialogFragment";
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
@@ -32,7 +34,6 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
     private EditText mEditText;
     private TextView mAlertTimeTextView;
     private ImageView mAlertImage;
-    private TextView mModifyTimeTextView;
     private NoteDao mNoteDao;
     private Note mParent;
 
@@ -60,7 +61,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
         mEditText = (EditText) findViewById(R.id.note_edit_content);
         mAlertTimeTextView = (TextView) findViewById(R.id.note_edit_header_alert_time);
         mAlertImage = (ImageView) findViewById(R.id.note_edit_header_alert_Image);
-        mModifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
+        TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
         mParent = (Note) intent.getSerializableExtra(NoteListActivity.PARENT_TAG);
@@ -72,12 +73,10 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
             mNote.setType(Note.TYPE_NOTE);
             mNote.setParentId(Note.NO_PARENT);
             mNote.setColor(Color.YELLOW);
-            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.format_datetime_mdhm));
-            mModifyTimeTextView.setText(sdf.format(new Date(System.currentTimeMillis())));
+            modifyTimeTextView.setText(CalendarUtil.getCurrentFormatText(getString(R.string.format_datetime_mdhm)));
         } else {
             mEditText.setText(mNote.getContent());
-            SimpleDateFormat sdf = new SimpleDateFormat(getString(R.string.format_datetime_mdhm));
-            mModifyTimeTextView.setText(sdf.format(new Date(mNote.getModifyTime())));
+            modifyTimeTextView.setText(CalendarUtil.getFormatText(getString(R.string.format_datetime_mdhm), mNote.getModifyTime()));
 
             switch (mNote.getColor()) {
                 case Color.YELLOW:
@@ -210,9 +209,9 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
                     alertCalendar.setTimeInMillis(System.currentTimeMillis());
                 }
 
-                AlertDialogFragment alertDialog = new AlertDialogFragment();
+                AlertTimeDialogFragment alertDialog = new AlertTimeDialogFragment();
                 alertDialog.setCalendar(alertCalendar);
-                alertDialog.show(getSupportFragmentManager(), "alertDialog");
+                alertDialog.show(getSupportFragmentManager(), ALERT_DIALOG_FRAGMENT);
                 return true;
             case R.id.note_edit_menu_share:
                 return true;
@@ -226,20 +225,21 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
     public void onPause() {
         super.onPause();
 
-        if (null != mEditText.getText() && !"".equals(mEditText.getText().toString())) {
-            mNote.setContent(mEditText.getText().toString());
-            mNote.setModifyTime(System.currentTimeMillis());
+        if (null == mEditText.getText() || "".equals(mEditText.getText().toString())) {
+            return;
+        }
 
-            if (null != mParent) {
-                mNote.setParentId(mParent.getId());
-            }
+        mNote.setContent(mEditText.getText().toString());
+        mNote.setModifyTime(System.currentTimeMillis());
 
-            if (0 < mNote.getId()) {
-                mNoteDao.update(mNote);
-            } else {
-                mNoteDao.insert(mNote);
-            }
+        if (null != mParent) {
+            mNote.setParentId(mParent.getId());
+        }
 
+        if (0 < mNote.getId()) {
+            mNoteDao.update(mNote);
+        } else {
+            mNoteDao.insert(mNote);
         }
 
     }
@@ -281,25 +281,31 @@ public class NoteEditActivity extends FragmentActivity implements AlertDialogFra
 
     @Override
     public void onShowDatePicker() {
-        AlertDialogFragment alertDialog = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alertDialog");
+        AlertTimeDialogFragment alertDialog =
+                (AlertTimeDialogFragment) getSupportFragmentManager().findFragmentByTag(ALERT_DIALOG_FRAGMENT);
         DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
         datePickerDialog.setCalendar(alertDialog.getCalendar());
-        datePickerDialog.show(getSupportFragmentManager(), "datePickerDialog ");
+        datePickerDialog.show(getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
     }
 
     @Override
     public void onAlertSet(long alertTime) {
+
+        if (alertTime < System.currentTimeMillis()) {
+            Toast.makeText(this, R.string.note_edit_use_alert_time_error, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         mNote.setAlertTime(alertTime);
         mAlertImage.setVisibility(View.VISIBLE);
-        String currentTimeFormat = getResources().getString(R.string.format_datetime_mdhm);
-        SimpleDateFormat sdf = new SimpleDateFormat(currentTimeFormat);
-        mAlertTimeTextView.setText(sdf.format(new Date(alertTime)));
+        mAlertTimeTextView.setText(CalendarUtil.getFormatText(getString(R.string.format_datetime_mdhm), alertTime));
         mAlertTimeTextView.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        AlertDialogFragment alertDialog = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alertDialog");
+        AlertTimeDialogFragment alertDialog =
+                (AlertTimeDialogFragment) getSupportFragmentManager().findFragmentByTag(ALERT_DIALOG_FRAGMENT);
 
         if (null != alertDialog) {
             alertDialog.setCalendarDate(year, monthOfYear, dayOfMonth);

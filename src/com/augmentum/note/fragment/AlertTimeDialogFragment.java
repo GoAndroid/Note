@@ -11,11 +11,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 import com.augmentum.note.R;
+import com.augmentum.note.util.CalendarUtil;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class AlertDialogFragment extends DialogFragment {
+public class AlertTimeDialogFragment extends DialogFragment {
 
     private OnNoteTimePickerListener mCallback;
     private Calendar mCalendar;
@@ -23,8 +23,6 @@ public class AlertDialogFragment extends DialogFragment {
     private Button mDatePickerBtn;
 
     private static final String CALENDAR = "calendar";
-    private static final String HOUR = "hour";
-    private static final String MINUTE = "minute";
 
     public interface OnNoteTimePickerListener {
 
@@ -49,7 +47,7 @@ public class AlertDialogFragment extends DialogFragment {
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement AlertTimeDialogFragment.OnNoteTimePickerListener");
         }
     }
 
@@ -88,16 +86,18 @@ public class AlertDialogFragment extends DialogFragment {
 
         if (null != savedInstanceState) {
             mCalendar = (Calendar) savedInstanceState.getSerializable(CALENDAR);
-            mTimePicker.setCurrentHour(savedInstanceState.getInt(HOUR));
-            mTimePicker.setCurrentMinute(savedInstanceState.getInt(MINUTE));
-        } else {
-            mTimePicker.setCurrentHour(mCalendar.get(Calendar.HOUR_OF_DAY));
-            mTimePicker.setCurrentMinute(mCalendar.get(Calendar.MINUTE));
         }
 
+        if (null == mCalendar) {
+            mCalendar = Calendar.getInstance();
+            mCalendar.setTimeInMillis(System.currentTimeMillis());
+        }
+
+        mTimePicker.setCurrentHour(mCalendar.get(Calendar.HOUR_OF_DAY));
+        mTimePicker.setCurrentMinute(mCalendar.get(Calendar.MINUTE));
+
         String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
-        SimpleDateFormat sdf = new SimpleDateFormat(currentTimeFormat);
-        mDatePickerBtn.setText(sdf.format(mCalendar.getTime()));
+        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
 
         return builder.create();
     }
@@ -113,14 +113,13 @@ public class AlertDialogFragment extends DialogFragment {
     public void setCalendarDate(int year, int monthOfYear, int dayOfMonth) {
         mCalendar.set(year, monthOfYear, dayOfMonth);
         String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
-        SimpleDateFormat sdf = new SimpleDateFormat(currentTimeFormat);
-        mDatePickerBtn.setText(sdf.format(mCalendar.getTime()));
+        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(HOUR, mTimePicker.getCurrentHour());
-        outState.putInt(MINUTE, mTimePicker.getCurrentMinute());
+        mCalendar.set(Calendar.HOUR_OF_DAY, mTimePicker.getCurrentHour());
+        mCalendar.set(Calendar.MINUTE, mTimePicker.getCurrentMinute());
         outState.putSerializable(CALENDAR, mCalendar);
         super.onSaveInstanceState(outState);
     }
