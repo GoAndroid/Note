@@ -10,7 +10,7 @@
     <application android:allowBackup="true"
                  android:label="@string/app_name"
                  android:theme="@android:style/Theme.NoTitleBar"
-                 android:icon="@drawable/ic_launcher">
+                 android:icon="@drawable/ic_launcher" android:name=".NoteApplication">
         <activity android:name=".activity.NoteListActivity"
                   android:label="@string/app_name">
             <intent-filter>

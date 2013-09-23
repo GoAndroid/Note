@@ -4,13 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TimePicker;
 import com.augmentum.note.R;
 
-public class NoteTimePickerDialog extends AlertDialog implements DialogInterface.OnClickListener, TimePicker.OnTimeChangedListener {
+public class NoteTimePickerDialog extends AlertDialog {
 
     /**
      * The callback interface used to indicate the user is done filling in
@@ -78,21 +77,33 @@ public class NoteTimePickerDialog extends AlertDialog implements DialogInterface
         setTitle(R.string.note_edit_set_alert_time_time);
 
         Context themeContext = getContext();
-        setButton(BUTTON_POSITIVE, themeContext.getText(android.R.string.ok), this);
-        setButton(BUTTON_NEGATIVE, themeContext.getText(android.R.string.cancel), this);
 
-        LayoutInflater inflater =
-                (LayoutInflater) themeContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.note_time_picker_dialog, null);
+        setButton(BUTTON_POSITIVE, themeContext.getText(android.R.string.ok), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                tryNotifyTimeSet();
+            }
+        });
+
+        setButton(BUTTON_NEGATIVE, themeContext.getText(android.R.string.cancel), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+
+        View view = View.inflate(themeContext,R.layout.note_time_picker_dialog, null);
         setView(view);
-        mDatePickerBtn = (Button) (view != null ? view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn) : null);
+        mDatePickerBtn = (Button) view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn);
+
 
         mDatePickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                  mCallback.onShowDatePick();
+                mCallback.onShowDatePick();
             }
         });
+
 
         mTimePicker = (TimePicker) view.findViewById(R.id.note_time_picker_dialog_timePicker);
 
@@ -100,11 +111,7 @@ public class NoteTimePickerDialog extends AlertDialog implements DialogInterface
         mTimePicker.setIs24HourView(mIs24HourView);
         mTimePicker.setCurrentHour(mInitialHourOfDay);
         mTimePicker.setCurrentMinute(mInitialMinute);
-        mTimePicker.setOnTimeChangedListener(this);
-    }
 
-    public void onClick(DialogInterface dialog, int which) {
-        tryNotifyTimeSet();
     }
 
     public void updateTime(int hourOfDay, int minutOfHour) {
@@ -112,9 +119,6 @@ public class NoteTimePickerDialog extends AlertDialog implements DialogInterface
         mTimePicker.setCurrentMinute(minutOfHour);
     }
 
-    public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-        /* do nothing */
-    }
 
     private void tryNotifyTimeSet() {
         if (mCallback != null) {

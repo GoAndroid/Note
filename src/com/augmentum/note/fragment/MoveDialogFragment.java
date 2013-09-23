@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
-import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.model.Note;
 
 import java.util.List;
@@ -25,9 +24,8 @@ public class MoveDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final List<Note> folders = NoteDaoImpl.getInstance().getFolder(new NoteDbHelper(getActivity()));
+        final List<Note> folders = NoteDaoImpl.getInstance().getFolders();
 
         String[] folderSubjects = new String[folders.size()];
 

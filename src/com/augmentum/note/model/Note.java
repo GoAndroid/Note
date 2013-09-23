@@ -46,13 +46,13 @@ public class Note implements Serializable {
 
         final Note note = (Note) other;
 
-        return getId() == note.getId();
+        return (getId() == note.getId()) && (getType() == note.getType());
 
     }
 
     @Override
     public int hashCode() {
-        return getId();
+        return 29 * getId() + 17 * getType();
     }
 
     public int getChildCount() {

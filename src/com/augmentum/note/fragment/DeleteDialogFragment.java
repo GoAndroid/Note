@@ -29,7 +29,6 @@ public class DeleteDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(getMessageId());
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

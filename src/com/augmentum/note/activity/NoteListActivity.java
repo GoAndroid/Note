@@ -14,7 +14,6 @@ import com.augmentum.note.R;
 import com.augmentum.note.adapter.NoteAdapter;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
-import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.fragment.DeleteDialogFragment;
 import com.augmentum.note.fragment.ExportDialogFragment;
 import com.augmentum.note.fragment.MoveDialogFragment;
@@ -28,13 +27,11 @@ public class NoteListActivity extends FragmentActivity {
 
     public static final String PARENT_TAG = "Parent";
     public static final String NOTE_TAG = "note";
-    private ListView mNoteListView;
     private LinearLayout mDeleteDialog;
     private LinearLayout mMoveDialog;
     private RelativeLayout mAddFolderDialog;
     private NoteAdapter mNoteAdapter;
     private List<Note> mList = new ArrayList<Note>();
-    private NoteDbHelper mDbHelper;
     private EditText mFolderDialogText;
     private NoteDao mNoteDao;
     private boolean mIsFolderState;
@@ -48,7 +45,6 @@ public class NoteListActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.note_list);
-        mDbHelper = new NoteDbHelper(this);
         mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
@@ -65,15 +61,15 @@ public class NoteListActivity extends FragmentActivity {
     }
 
     private void initView() {
-        mNoteListView = (ListView) findViewById(R.id.note_list_note_list);
         mDeleteDialog = (LinearLayout) findViewById(R.id.note_list_delete_dialog);
         mMoveDialog = (LinearLayout) findViewById(R.id.note_list_move_dialog);
         mAddFolderDialog = (RelativeLayout) findViewById(R.id.note_list_add_folder_dialog);
         mFolderDialogText = (EditText) findViewById(R.id.note_list_folder_dialog_text);
 
         mNoteAdapter = new NoteAdapter(NoteListActivity.this, mList);
-        mNoteListView.setAdapter(mNoteAdapter);
-        mNoteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        ListView noteListView = (ListView) findViewById(R.id.note_list_note_list);
+        noteListView.setAdapter(mNoteAdapter);
+        noteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -140,6 +136,14 @@ public class NoteListActivity extends FragmentActivity {
                 startActivity(intent);
                 return true;
             case R.id.note_list_menu_backup_to_sd:
+                ExportDialogFragment exportSdDialogFragment = new ExportDialogFragment();
+                exportSdDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
+                    @Override
+                    public void onItemClick() {
+                        // TODO
+                    }
+                });
+                exportSdDialogFragment.show(getSupportFragmentManager(), "exportSd");
                 return true;
             case R.id.note_list_menu_delete:
                 mNoteAdapter.setDeleteState(true);
@@ -154,7 +158,7 @@ public class NoteListActivity extends FragmentActivity {
                         // TODO
                     }
                 });
-                exportDialogFragment.show(getSupportFragmentManager(), "exportDialogFragment");
+                exportDialogFragment.show(getSupportFragmentManager(), "exportTxt");
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -174,8 +178,12 @@ public class NoteListActivity extends FragmentActivity {
                 dialog.show(getSupportFragmentManager(), "setPasswordDialog");
                 return true;
             case R.id.note_folder_menu_new_note:
+                intent.setClass(NoteListActivity.this, NoteEditActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.note_folder_menu_edit_folder_title:
+                mAddFolderDialog.setVisibility(View.VISIBLE);
+                mFolderDialogText.requestFocus();
                 return true;
             case R.id.note_folder_menu_move_out_of_folder:
                 mNoteAdapter.setMoveState(true);
@@ -210,19 +218,20 @@ public class NoteListActivity extends FragmentActivity {
         for (Note note : mNoteAdapter.getEditSet()) {
             if (Note.TYPE_FOLDER == note.getType() && 0 < note.getChildCount()) {
                 hasNoEmptyFolder = true;
-                DeleteDialogFragment deleteDialogFragment = new DeleteDialogFragment();
-                deleteDialogFragment.setMessage(R.string.note_edit_delete_confirm_hasNoEmptyFolder);
-                deleteDialogFragment.setListener(new DeleteDialogFragment.OnDeleteListener() {
-                    @Override
-                    public void onPositiveClick() {
-                        deleteNote();
-                    }
-                });
-                deleteDialogFragment.show(getSupportFragmentManager(), "deleteDialogFragment");
             }
         }
 
-        if (!hasNoEmptyFolder) {
+        if (hasNoEmptyFolder) {
+            DeleteDialogFragment deleteDialogFragment = new DeleteDialogFragment();
+            deleteDialogFragment.setMessage(R.string.note_edit_delete_confirm_hasNoEmptyFolder);
+            deleteDialogFragment.setListener(new DeleteDialogFragment.OnDeleteListener() {
+                @Override
+                public void onPositiveClick() {
+                    deleteNote();
+                }
+            });
+            deleteDialogFragment.show(getSupportFragmentManager(), "deleteDialogFragment");
+        } else {
             deleteNote();
         }
     }
@@ -230,7 +239,7 @@ public class NoteListActivity extends FragmentActivity {
     private void deleteNote() {
 
         for (Note note : mNoteAdapter.getEditSet()) {
-            mNoteDao.delete(mDbHelper, note);
+            mNoteDao.delete(note);
         }
 
         mNoteAdapter.getEditSet().clear();
@@ -241,7 +250,6 @@ public class NoteListActivity extends FragmentActivity {
     }
 
     public void onDeleteCancel(View view) {
-
         mNoteAdapter.setDeleteState(false);
         mNoteAdapter.notifyDataSetChanged();
         mDeleteDialog.setVisibility(View.GONE);
@@ -258,7 +266,7 @@ public class NoteListActivity extends FragmentActivity {
 
                     for (Note note : mNoteAdapter.getEditSet()) {
                         note.setParentId(parent.getId());
-                        mNoteDao.update(mDbHelper, note);
+                        mNoteDao.update(note);
                     }
 
                     mNoteAdapter.getEditSet().clear();
@@ -274,7 +282,7 @@ public class NoteListActivity extends FragmentActivity {
 
             for (Note note : mNoteAdapter.getEditSet()) {
                 note.setParentId(Note.NO_PARENT);
-                mNoteDao.update(mDbHelper, note);
+                mNoteDao.update(note);
             }
 
             mNoteAdapter.getEditSet().clear();
@@ -295,15 +303,21 @@ public class NoteListActivity extends FragmentActivity {
     public void onAddFolderOk(View view) {
         Note note = new Note();
 
-        if (null == mFolderDialogText.getText() || "".equals(mFolderDialogText.getText().toString()))  {
+        if (null == mFolderDialogText.getText() || "".equals(mFolderDialogText.getText().toString())) {
             return;
         }
 
-        note.setSubject(mFolderDialogText.getText().toString());
-        note.setCreateTime(System.currentTimeMillis());
-        note.setType(Note.TYPE_FOLDER);
-        note.setParentId(Note.NO_PARENT);
-        mNoteDao.insert(mDbHelper, note);
+        if (mIsFolderState) {
+            mParent.setSubject(mFolderDialogText.getText().toString());
+            mNoteDao.update(note);
+        } else {
+            note.setSubject(mFolderDialogText.getText().toString());
+            note.setCreateTime(System.currentTimeMillis());
+            note.setType(Note.TYPE_FOLDER);
+            note.setParentId(Note.NO_PARENT);
+            mNoteDao.insert(note);
+        }
+
         initList();
         mNoteAdapter.notifyDataSetChanged();
         mAddFolderDialog.setVisibility(View.GONE);
@@ -316,9 +330,9 @@ public class NoteListActivity extends FragmentActivity {
     private void initList() {
         mList.clear();
         if (mIsFolderState) {
-            mList.addAll(mNoteDao.getChildren(mDbHelper, mParent));
+            mList.addAll(mNoteDao.getChildren(mParent));
         } else {
-            mList.addAll(mNoteDao.getALL(mDbHelper));
+            mList.addAll(mNoteDao.getAllNoParent());
         }
     }
 }

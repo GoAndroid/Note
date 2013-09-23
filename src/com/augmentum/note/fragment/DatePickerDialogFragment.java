@@ -18,13 +18,21 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
     private OnDateListener mCallback;
     private Calendar mCalendar;
 
-    public DatePickerDialogFragment(Calendar calendar) {
+    private static final String CALENDAR = "calendar";
+
+    public void setCalendar(Calendar calendar) {
         mCalendar = calendar;
     }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        // Use the current date as the default date in the picker
+
+        super.onCreateDialog(savedInstanceState);
+
+        if (null != savedInstanceState) {
+            mCalendar = (Calendar) savedInstanceState.getSerializable(CALENDAR);
+        }
+
         int year = mCalendar.get(Calendar.YEAR);
         int month = mCalendar.get(Calendar.MONTH);
         int day = mCalendar.get(Calendar.DAY_OF_MONTH);
@@ -48,7 +56,13 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
-                    + " must implement NoticeDialogListener");
+                    + " must implement DatePickerDialogFragment.OnDateListener");
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(CALENDAR, mCalendar);
+        super.onSaveInstanceState(outState);
     }
 }

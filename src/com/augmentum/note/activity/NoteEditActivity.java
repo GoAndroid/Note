@@ -3,7 +3,6 @@ package com.augmentum.note.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,26 +12,26 @@ import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
-import com.augmentum.note.database.NoteDbHelper;
+import com.augmentum.note.fragment.AlertDialogFragment;
 import com.augmentum.note.fragment.DatePickerDialogFragment;
 import com.augmentum.note.fragment.DeleteDialogFragment;
-import com.augmentum.note.fragment.RemindDialogFragment;
 import com.augmentum.note.model.Note;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
-public class NoteEditActivity extends FragmentActivity implements RemindDialogFragment.OnNoteTimePickerListener,
+public class NoteEditActivity extends FragmentActivity implements AlertDialogFragment.OnNoteTimePickerListener,
         DatePickerDialogFragment.OnDateListener {
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
-    private NoteDbHelper mDbHelper;
     private Note mNote;
     private RelativeLayout mHeaderLayout;
     private ScrollView mScrollView;
     private EditText mEditText;
     private TextView mAlertTimeTextView;
+    private ImageView mAlertImage;
     private TextView mModifyTimeTextView;
     private NoteDao mNoteDao;
     private Note mParent;
@@ -44,11 +43,9 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_edit);
-        mDbHelper = new NoteDbHelper(this);
         mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
-
     }
 
     /**
@@ -62,6 +59,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
         mScrollView = (ScrollView) findViewById(R.id.note_edit_scroll);
         mEditText = (EditText) findViewById(R.id.note_edit_content);
         mAlertTimeTextView = (TextView) findViewById(R.id.note_edit_header_alert_time);
+        mAlertImage = (ImageView) findViewById(R.id.note_edit_header_alert_Image);
         mModifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
@@ -108,6 +106,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
                     mNote.setColor(Color.GRAY);
                     break;
             }
+
         }
 
         mScrollView.setOnTouchListener(new View.OnTouchListener() {
@@ -156,6 +155,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
                 }
+
             }
         });
     }
@@ -190,7 +190,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
                     public void onPositiveClick() {
 
                         if (0 < mNote.getId()) {
-                            mNoteDao.delete(mDbHelper, mNote);
+                            mNoteDao.delete(mNote);
                         }
 
                         finish();
@@ -202,8 +202,17 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
             case R.id.note_edit_menu_new_note:
                 return true;
             case R.id.note_edit_menu_remind:
-                DialogFragment remindDialog = new RemindDialogFragment();
-                remindDialog.show(getSupportFragmentManager(), "remindDialog");
+                Calendar alertCalendar = Calendar.getInstance();
+
+                if (0 < mNote.getAlertTime()) {
+                    alertCalendar.setTimeInMillis(mNote.getAlertTime());
+                } else {
+                    alertCalendar.setTimeInMillis(System.currentTimeMillis());
+                }
+
+                AlertDialogFragment alertDialog = new AlertDialogFragment();
+                alertDialog.setCalendar(alertCalendar);
+                alertDialog.show(getSupportFragmentManager(), "alertDialog");
                 return true;
             case R.id.note_edit_menu_share:
                 return true;
@@ -217,7 +226,7 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
     public void onPause() {
         super.onPause();
 
-        if (null != mEditText.getText() || !"".equals(mEditText.getText().toString())) {
+        if (null != mEditText.getText() && !"".equals(mEditText.getText().toString())) {
             mNote.setContent(mEditText.getText().toString());
             mNote.setModifyTime(System.currentTimeMillis());
 
@@ -226,10 +235,11 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
             }
 
             if (0 < mNote.getId()) {
-                mNoteDao.update(mDbHelper, mNote);
+                mNoteDao.update(mNote);
             } else {
-                mNoteDao.insert(mDbHelper, mNote);
+                mNoteDao.insert(mNote);
             }
+
         }
 
     }
@@ -261,24 +271,39 @@ public class NoteEditActivity extends FragmentActivity implements RemindDialogFr
                 case Color.GRAY:
                     mChangeColorRadioGroup.check(R.id.note_edit_grey_radio_btn);
             }
-            mChangeColorRadioGroup.setVisibility(View.VISIBLE);
 
+            mChangeColorRadioGroup.setVisibility(View.VISIBLE);
         } else {
             mChangeColorRadioGroup.setVisibility(View.GONE);
         }
+
     }
 
     @Override
     public void onShowDatePicker() {
-        RemindDialogFragment remindDialog = (RemindDialogFragment) getSupportFragmentManager().findFragmentByTag("remindDialog");
-        DialogFragment datePickerDialog = new DatePickerDialogFragment(remindDialog.getCalendar());
+        AlertDialogFragment alertDialog = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alertDialog");
+        DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
+        datePickerDialog.setCalendar(alertDialog.getCalendar());
         datePickerDialog.show(getSupportFragmentManager(), "datePickerDialog ");
     }
 
     @Override
+    public void onAlertSet(long alertTime) {
+        mNote.setAlertTime(alertTime);
+        mAlertImage.setVisibility(View.VISIBLE);
+        String currentTimeFormat = getResources().getString(R.string.format_datetime_mdhm);
+        SimpleDateFormat sdf = new SimpleDateFormat(currentTimeFormat);
+        mAlertTimeTextView.setText(sdf.format(new Date(alertTime)));
+        mAlertTimeTextView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        RemindDialogFragment remindDialog = (RemindDialogFragment) getSupportFragmentManager().findFragmentByTag("remindDialog");
-        remindDialog.onDateSet(view, year, monthOfYear, dayOfMonth);
+        AlertDialogFragment alertDialog = (AlertDialogFragment) getSupportFragmentManager().findFragmentByTag("alertDialog");
+
+        if (null != alertDialog) {
+            alertDialog.setCalendarDate(year, monthOfYear, dayOfMonth);
+        }
     }
 
 }

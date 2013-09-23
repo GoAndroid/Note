@@ -1,24 +1,54 @@
 package com.augmentum.note.dao;
 
-import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.model.Note;
 
 import java.util.List;
 
 public interface NoteDao {
 
-    public void insert(NoteDbHelper dbHelper, Note note);
+    /**
+     * Insert a <code>Note</code> object to database, a note will be insert with a type, parent_id, create_time,
+     * if is a note_type insert with color, modifyTime, Content,
+     * if is a folder_type insert with subject.
+     *
+     * @param note which <code>note</code> object will be insert
+     */
+    public void insert(Note note);
 
-    public void update(NoteDbHelper dbHelper, Note note);
+    /**
+     * Update a <code>Note</code> object to database,
+     * if is a note_type with parent_id, color, content, modify_time
+     * if is a folder_type with subject
+     *
+     * @param note which <code>Note</code> object will be delete Id can't be null
+     */
+    public void update(Note note);
 
-    public void delete(NoteDbHelper dbHelper, Note note);
+    /**
+     * Delete a <code>Note</code> object from database by id,
+     * if note is a folder_type delete with children.
+     *
+     * @param note which <code>Note</code> be delete Id can't be null
+     */
+    public void delete(Note note);
 
-    public List<Note> getALL(NoteDbHelper dbHelper);
+    /**
+     * Get All <code>Note</code> object have no parent.
+     *
+     * @return a list of <code>Note</code> object
+     */
+    public List<Note> getAllNoParent();
 
-    public List<Note> getChildren(NoteDbHelper dbHelper, Note note);
+    /**
+     * Get all <code>Note</code> object what are children of parent.
+     * @param parent a <code>Note</code>object type is folder
+     * @return a list of <code>Note</code> object type is note
+     */
+    public List<Note> getChildren(Note parent);
 
-    public int getChildCount(NoteDbHelper dbHelper, Note note);
-
-    public List<Note> getFolder(NoteDbHelper dbHelper);
-
+    /**
+     * Get all <code>Note</code> object which type is folder
+     * @return a list of folder type <code>Note</code> Object
+     */
+    public List<Note> getFolders();
 }

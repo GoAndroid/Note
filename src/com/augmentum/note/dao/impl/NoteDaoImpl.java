@@ -3,6 +3,7 @@ package com.augmentum.note.dao.impl;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import com.augmentum.note.NoteApplication;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.database.NoteDbHelper;
 import com.augmentum.note.model.Note;
@@ -13,17 +14,26 @@ import java.util.List;
 public class NoteDaoImpl implements NoteDao {
 
     private static NoteDaoImpl instance = new NoteDaoImpl();
+    private NoteDbHelper mDbHelper;
 
     private NoteDaoImpl() {
+        mDbHelper = NoteApplication.getInstance().getDbHelper();
     }
 
     public static NoteDaoImpl getInstance() {
         return instance;
     }
 
+    /**
+     * Insert a <code>Note</code> object to database, a note will be insert with a type, parent_id, create_time,
+     * if is a note_type insert with color, modifyTime, Content,
+     * if is a folder_type insert with subject.
+     *
+     * @param note which <code>note</code> object will be insert
+     */
     @Override
-    public void insert(NoteDbHelper dbHelper, Note note) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public void insert(Note note) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Note.NoteEntry.COLUMN_NAME_TYPE, note.getType());
         values.put(Note.NoteEntry.COLUMN_NAME_PARENT_ID, note.getParentId());
@@ -42,9 +52,16 @@ public class NoteDaoImpl implements NoteDao {
         }
     }
 
+    /**
+     * Update a <code>Note</code> object to database,
+     * if is a note_type with parent_id, color, content, modify_time
+     * if is a folder_type with subject
+     *
+     * @param note which <code>Note</code> object will be delete Id can't be null
+     */
     @Override
-    public void update(NoteDbHelper dbHelper, Note note) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public void update(Note note) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
 
         if (Note.TYPE_NOTE == note.getType()) {
@@ -69,9 +86,15 @@ public class NoteDaoImpl implements NoteDao {
         }
     }
 
+    /**
+     * Delete a <code>Note</code> object from database by id,
+     * if note is a folder_type delete with children.
+     *
+     * @param note which <code>Note</code> be delete Id can't be null
+     */
     @Override
-    public void delete(NoteDbHelper dbHelper, Note note) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+    public void delete(Note note) {
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
         if (Note.TYPE_FOLDER == note.getType()) {
             String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ? or " + Note.NoteEntry._ID + " = ?";
@@ -93,10 +116,15 @@ public class NoteDaoImpl implements NoteDao {
 
     }
 
+    /**
+     * Get All <code>Note</code> object have no parent.
+     *
+     * @return a list of <code>Note</code> object
+     */
     @Override
-    public List<Note> getALL(NoteDbHelper dbHelper) {
+    public List<Note> getAllNoParent() {
         List<Note> list = new ArrayList<Note>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 Note.NoteEntry._ID,
@@ -145,8 +173,8 @@ public class NoteDaoImpl implements NoteDao {
             if (Note.TYPE_FOLDER == note.getType()) {
                 String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
                 note.setSubject(subject);
-                note.setChildCount(getChildCount(dbHelper, note));
-                note.setModifyTime(getChildrenModifyTime(dbHelper, note));
+                note.setChildCount(getChildCount(note));
+                note.setModifyTime(getChildrenModifyTime(note));
             }
 
             list.add(note);
@@ -159,50 +187,15 @@ public class NoteDaoImpl implements NoteDao {
         return list;
     }
 
-    private long getChildrenModifyTime(NoteDbHelper dbHelper, Note parent) {
-        long result = 0;
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        String[] projection = {
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME
-        };
-
-        String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ?";
-        String[] selectionArgs = {String.valueOf(parent.getId())};
-        String orderBy = Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + " DESC";
-
-        Cursor cursor = null;
-
-        if (db != null) {
-            cursor = db.query(
-                    Note.NoteEntry.TABLE_NAME,
-                    projection,
-                    selection,
-                    selectionArgs,
-                    null,
-                    null,
-                    orderBy
-            );
-        }
-
-        if (cursor != null && cursor.moveToFirst()) {
-            if (-1 != cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)) {
-                result = cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME));
-            }
-        }
-
-        if (cursor != null) {
-            cursor.close();
-        }
-
-        return result;
-    }
-
+    /**
+     * Get all <code>Note</code> object what are children of parent.
+     * @param parent a <code>Note</code>object type is folder
+     * @return a list of <code>Note</code> object type is note
+     */
     @Override
-    public List<Note> getChildren(NoteDbHelper dbHelper, Note parent) {
+    public List<Note> getChildren(Note parent) {
         List<Note> list = new ArrayList<Note>();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 Note.NoteEntry._ID,
@@ -220,7 +213,7 @@ public class NoteDaoImpl implements NoteDao {
 
         Cursor cursor = null;
 
-        if (db != null)  {
+        if (db != null) {
             cursor = db.query(
                     Note.NoteEntry.TABLE_NAME,
                     projection,
@@ -254,11 +247,58 @@ public class NoteDaoImpl implements NoteDao {
         return list;
     }
 
+    /**
+     * Get all <code>Note</code> object which type is folder
+     * @return a list of folder type <code>Note</code> Object
+     */
     @Override
-    public int getChildCount(NoteDbHelper dbHelper, Note parent) {
+    public List<Note> getFolders() {
+        List<Note> result = new ArrayList<Note>();
+
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
+
+        String[] projection = {
+                Note.NoteEntry._ID,
+                Note.NoteEntry.COLUMN_NAME_SUBJECT
+        };
+
+        String selection = Note.NoteEntry.COLUMN_NAME_TYPE + " = ?";
+        String[] selectionArgs = {String.valueOf(Note.TYPE_FOLDER)};
+
+        Cursor cursor = null;
+
+        if (db != null) {
+            cursor = db.query(
+                    Note.NoteEntry.TABLE_NAME,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null,
+                    null,
+                    null
+            );
+        }
+
+        Note note;
+
+        while (cursor != null && cursor.moveToNext()) {
+            note = new Note();
+            note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
+            note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
+            result.add(note);
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return result;
+    }
+
+    private int getChildCount(Note parent) {
         int result;
 
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 Note.NoteEntry._ID
@@ -290,19 +330,20 @@ public class NoteDaoImpl implements NoteDao {
         return result;
     }
 
-    @Override
-    public List<Note> getFolder(NoteDbHelper dbHelper) {
-        List<Note> result = new ArrayList<Note>();
+    private long getChildrenModifyTime(Note parent) {
+        long result = 0;
 
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT
+                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME
         };
 
-        String selection = Note.NoteEntry.COLUMN_NAME_TYPE + " = ?";
-        String[] selectionArgs = {String.valueOf(Note.TYPE_FOLDER)};
+        String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ?";
+        String[] selectionArgs = {
+                String.valueOf(parent.getId())
+        };
+        String orderBy = Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + " DESC";
 
         Cursor cursor = null;
 
@@ -314,17 +355,14 @@ public class NoteDaoImpl implements NoteDao {
                     selectionArgs,
                     null,
                     null,
-                    null
+                    orderBy
             );
         }
 
-        Note note;
-
-        while (cursor != null && cursor.moveToNext()) {
-            note = new Note();
-            note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
-            note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
-            result.add(note);
+        if (cursor != null && cursor.moveToFirst()) {
+            if (-1 != cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)) {
+                result = cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME));
+            }
         }
 
         if (cursor != null) {

@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
-import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.augmentum.note.R;
 import com.augmentum.note.ui.NoteTimePickerDialog;
@@ -13,18 +12,27 @@ import com.augmentum.note.ui.NoteTimePickerDialog;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-public class RemindDialogFragment extends DialogFragment implements NoteTimePickerDialog.OnTimeSetListener, DatePickerDialogFragment.OnDateListener {
+public class RemindDialogFragment extends DialogFragment implements NoteTimePickerDialog.OnTimeSetListener {
 
     private NoteTimePickerDialog mTimeDialog;
-    private OnNoteTimePickerListener mListener;
+    private OnNoteTimePickerListener mCallBack;
     private Calendar mCalendar;
 
     public interface OnNoteTimePickerListener {
 
         /**
-         *  when click the NoteTimePickerDialog  mDatePickBtn  implement it in NoteEditActivity
+         *  when click the NoteTimePickerDialog mDatePickBtn callback this method
          */
         public void onShowDatePicker();
+
+        /**
+         * when finish remind time set callback this method
+         */
+        public void onRemindSet(long alertTime);
+    }
+
+    public RemindDialogFragment(Calendar calendar) {
+        mCalendar = calendar;
     }
 
     @Override
@@ -33,7 +41,7 @@ public class RemindDialogFragment extends DialogFragment implements NoteTimePick
         // Verify that the host activity implements the callback interface
         try {
             // Instantiate the NoticeDialogListener so we can send events to the host
-            mListener = (OnNoteTimePickerListener) activity;
+            mCallBack = (OnNoteTimePickerListener) activity;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
             throw new ClassCastException(activity.toString()
@@ -44,7 +52,6 @@ public class RemindDialogFragment extends DialogFragment implements NoteTimePick
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        mCalendar = Calendar.getInstance();
         int hour = mCalendar.get(Calendar.HOUR_OF_DAY);
         int minute = mCalendar.get(Calendar.MINUTE);
 
@@ -62,15 +69,16 @@ public class RemindDialogFragment extends DialogFragment implements NoteTimePick
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
         mCalendar.set(Calendar.MINUTE, minute);
+
+        mCallBack.onRemindSet(mCalendar.getTimeInMillis());
     }
 
     @Override
     public void onShowDatePick() {
-        mListener.onShowDatePicker();
+        mCallBack.onShowDatePicker();
     }
 
-    @Override
-    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+    public void setCalendar(int year, int monthOfYear, int dayOfMonth) {
         mCalendar.set(year, monthOfYear, dayOfMonth);
         String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
         SimpleDateFormat sdf = new SimpleDateFormat(currentTimeFormat);

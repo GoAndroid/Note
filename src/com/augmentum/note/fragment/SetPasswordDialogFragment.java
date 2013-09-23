@@ -11,7 +11,6 @@ public class SetPasswordDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.set_password_setting_title);
         builder.setView(getActivity().getLayoutInflater().inflate(R.layout.set_password_dialog, null));
@@ -25,6 +24,7 @@ public class SetPasswordDialogFragment extends DialogFragment {
 
             }
         });
+
         return builder.create();
     }
 }
