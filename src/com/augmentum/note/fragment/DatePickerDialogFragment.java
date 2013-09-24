@@ -1,6 +1,5 @@
 package com.augmentum.note.fragment;
 
-import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.os.Bundle;
@@ -22,6 +21,10 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
 
     public void setCalendar(Calendar calendar) {
         mCalendar = calendar;
+    }
+
+    public void setCallback(OnDateListener callback) {
+        mCallback = callback;
     }
 
     @Override
@@ -49,20 +52,6 @@ public class DatePickerDialogFragment extends DialogFragment implements DatePick
     @Override
     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
         mCallback.onDateSet(view, year, monthOfYear, dayOfMonth);
-    }
-
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        // Verify that the host activity implements the callback interface
-        try {
-            // Instantiate the NoticeDialogListener so we can send events to the host
-            mCallback = (OnDateListener) activity;
-        } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement DatePickerDialogFragment.OnDateListener");
-        }
     }
 
     @Override

@@ -13,15 +13,13 @@ import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.AlertTimeDialogFragment;
-import com.augmentum.note.fragment.DatePickerDialogFragment;
 import com.augmentum.note.fragment.DeleteDialogFragment;
 import com.augmentum.note.model.Note;
 import com.augmentum.note.util.CalendarUtil;
 
 import java.util.Calendar;
 
-public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener,
-        DatePickerDialogFragment.OnDateListener {
+public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
 
     public static final String DATE_PICKER_DIALOG_FRAGMENT = "datePickerDialogFragment";
     public static final String ALERT_DIALOG_FRAGMENT = "alertDialogFragment";
@@ -280,15 +278,6 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     }
 
     @Override
-    public void onShowDatePicker() {
-        AlertTimeDialogFragment alertDialog =
-                (AlertTimeDialogFragment) getSupportFragmentManager().findFragmentByTag(ALERT_DIALOG_FRAGMENT);
-        DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
-        datePickerDialog.setCalendar(alertDialog.getCalendar());
-        datePickerDialog.show(getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
-    }
-
-    @Override
     public void onAlertSet(long alertTime) {
 
         if (alertTime < System.currentTimeMillis()) {
@@ -300,16 +289,6 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mAlertImage.setVisibility(View.VISIBLE);
         mAlertTimeTextView.setText(CalendarUtil.getFormatText(getString(R.string.format_datetime_mdhm), alertTime));
         mAlertTimeTextView.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-        AlertTimeDialogFragment alertDialog =
-                (AlertTimeDialogFragment) getSupportFragmentManager().findFragmentByTag(ALERT_DIALOG_FRAGMENT);
-
-        if (null != alertDialog) {
-            alertDialog.setCalendarDate(year, monthOfYear, dayOfMonth);
-        }
     }
 
 }

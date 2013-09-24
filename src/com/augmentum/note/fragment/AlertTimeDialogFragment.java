@@ -9,6 +9,7 @@ import android.support.v4.app.DialogFragment;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TimePicker;
 import com.augmentum.note.R;
 import com.augmentum.note.util.CalendarUtil;
@@ -16,6 +17,8 @@ import com.augmentum.note.util.CalendarUtil;
 import java.util.Calendar;
 
 public class AlertTimeDialogFragment extends DialogFragment {
+
+    public static final String DATE_PICKER_DIALOG_FRAGMENT = "datePickerDialogFragment";
 
     private OnNoteTimePickerListener mCallback;
     private Calendar mCalendar;
@@ -25,11 +28,6 @@ public class AlertTimeDialogFragment extends DialogFragment {
     private static final String CALENDAR = "calendar";
 
     public interface OnNoteTimePickerListener {
-
-        /**
-         * when click the NoteTimePickerDialog mDatePickBtn callback this method
-         */
-        public void onShowDatePicker();
 
         /**
          * when finish remind time set callback this method
@@ -64,7 +62,17 @@ public class AlertTimeDialogFragment extends DialogFragment {
         mDatePickerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mCallback.onShowDatePicker();
+                DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
+                datePickerDialog.setCalendar(mCalendar);
+                datePickerDialog.setCallback(new DatePickerDialogFragment.OnDateListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        mCalendar.set(year, monthOfYear, dayOfMonth);
+                        String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
+                        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
+                    }
+                });
+                datePickerDialog.show(getActivity().getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
             }
         });
 
@@ -102,18 +110,8 @@ public class AlertTimeDialogFragment extends DialogFragment {
         return builder.create();
     }
 
-    public Calendar getCalendar() {
-        return mCalendar;
-    }
-
     public void setCalendar(Calendar calendar) {
         mCalendar = calendar;
-    }
-
-    public void setCalendarDate(int year, int monthOfYear, int dayOfMonth) {
-        mCalendar.set(year, monthOfYear, dayOfMonth);
-        String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
-        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
     }
 
     @Override
