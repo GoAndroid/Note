@@ -226,9 +226,11 @@ public class NoteListActivity extends FragmentActivity {
         boolean hasNoEmptyFolder = false;
 
         for (Note note : mNoteAdapter.getEditSet()) {
+
             if (Note.TYPE_FOLDER == note.getType() && 0 < note.getChildCount()) {
                 hasNoEmptyFolder = true;
             }
+
         }
 
         if (hasNoEmptyFolder) {
@@ -339,10 +341,12 @@ public class NoteListActivity extends FragmentActivity {
 
     private void initList() {
         mList.clear();
+
         if (mIsFolderState) {
             mList.addAll(mNoteDao.getChildren(mParent));
         } else {
             mList.addAll(mNoteDao.getAllNoParent());
         }
+
     }
 }

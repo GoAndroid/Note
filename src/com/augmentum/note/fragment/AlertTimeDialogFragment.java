@@ -95,7 +95,7 @@ public class AlertTimeDialogFragment extends DialogFragment {
                     @Override
                     public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                         mCalendar.set(year, monthOfYear, dayOfMonth);
-                        datePickerBtn.setText(CalendarUtil.getYmdw( mCalendar.getTimeInMillis()));
+                        datePickerBtn.setText(CalendarUtil.getFormatYmdw(mCalendar.getTimeInMillis()));
                     }
                 });
 
@@ -103,7 +103,7 @@ public class AlertTimeDialogFragment extends DialogFragment {
             }
         });
 
-        datePickerBtn.setText(CalendarUtil.getYmdw(mCalendar.getTimeInMillis()));
+        datePickerBtn.setText(CalendarUtil.getFormatYmdw(mCalendar.getTimeInMillis()));
 
         return builder.create();
     }

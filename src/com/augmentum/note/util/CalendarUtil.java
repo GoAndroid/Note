@@ -16,27 +16,27 @@ public class CalendarUtil {
         c.setTimeInMillis(System.currentTimeMillis());
         return c;
     }
-    public static String getYmdw(long millis) {
+    public static String getFormatYmdw(long millis) {
         return getFormat(R.string.format_date_ymdw, millis);
     }
 
-    public static String getYmd(long millis) {
+    public static String getFormatYmd(long millis) {
         return getFormat(R.string.format_date_ymd, millis);
     }
 
-    public static String getMdhm(long millis) {
+    public static String getFormatMdhm(long millis) {
         return getFormat(R.string.format_datetime_mdhm, millis);
     }
 
-    public static String getMd(long millis) {
+    public static String getFormatMd(long millis) {
         return getFormat(R.string.format_date_md, millis);
     }
 
-    public static String getW(long millis) {
+    public static String getFormatW(long millis) {
         return getFormat(R.string.format_week, millis);
     }
 
-    public static String getHm(long millis) {
+    public static String getFormatHm(long millis) {
         return getFormat(R.string.format_time_hm, millis);
     }
 
