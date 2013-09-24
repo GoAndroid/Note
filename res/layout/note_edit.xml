@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:orientation="vertical"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
@@ -54,16 +54,13 @@
                   android:textColor="#66333333"
                   android:textSize="13sp" />
 
-
-
     </RelativeLayout>
 
     <ScrollView android:id="@+id/note_edit_scroll"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="27dp"
+                android:layout_below="@id/note_edit_header"
                 android:paddingTop="10dp"
-                android:paddingLeft="15dp"
                 android:background="@drawable/notes_bg_yellow">
 
         <EditText android:id="@+id/note_edit_content"
@@ -71,17 +68,20 @@
                   android:layout_height="wrap_content"
                   android:background="@android:color/transparent"
                   android:gravity="top"
+                  android:textSize="@dimen/default_edit_text_font_size"
+                  android:paddingLeft="15dp"
                   android:paddingBottom="15dp"
                   android:hint="@string/note_edit_hint"
                   android:singleLine="false"/>
     </ScrollView>
+
 
     <RadioGroup android:id="@+id/note_edit_change_color_dialog"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginTop="70dp"
-                android:layout_gravity="center_horizontal"
+                android:layout_centerHorizontal="true"
                 android:visibility="gone"
                 android:background="@drawable/zhengwen_xuanyanse">
 
@@ -121,14 +121,16 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:background="@drawable/vol_bg"
-                  android:layout_marginBottom="50dp"
                   android:visibility="gone"
-                  android:layout_gravity="bottom|center_horizontal"
+                  android:layout_alignBottom="@id/note_edit_scroll"
+                  android:layout_centerHorizontal="true"
+                  android:layout_marginBottom="50dp"
                   android:padding="10dp">
 
-        <SeekBar android:layout_width="250dp"
+        <SeekBar android:id="@+id/note_edit_change_font_seek_bar"
+                 android:layout_width="250dp"
                  android:layout_height="wrap_content"
                  android:layout_gravity="center"/>
     </LinearLayout>
 
-</FrameLayout>
+</RelativeLayout>

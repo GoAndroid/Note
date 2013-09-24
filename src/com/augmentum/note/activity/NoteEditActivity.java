@@ -1,6 +1,8 @@
 package com.augmentum.note.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -8,6 +10,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
@@ -16,12 +19,12 @@ import com.augmentum.note.fragment.AlertTimeDialogFragment;
 import com.augmentum.note.fragment.DeleteDialogFragment;
 import com.augmentum.note.model.Note;
 import com.augmentum.note.util.CalendarUtil;
+import com.augmentum.note.util.Resource;
 
 import java.util.Calendar;
 
 public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
 
-    public static final String DATE_PICKER_DIALOG_FRAGMENT = "datePickerDialogFragment";
     public static final String ALERT_DIALOG_FRAGMENT = "alertDialogFragment";
 
     private RadioGroup mChangeColorRadioGroup;
@@ -32,6 +35,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private EditText mEditText;
     private TextView mAlertTimeTextView;
     private ImageView mAlertImage;
+    private SeekBar mChangeFontSeekBar;
     private NoteDao mNoteDao;
     private Note mParent;
 
@@ -59,6 +63,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mEditText = (EditText) findViewById(R.id.note_edit_content);
         mAlertTimeTextView = (TextView) findViewById(R.id.note_edit_header_alert_time);
         mAlertImage = (ImageView) findViewById(R.id.note_edit_header_alert_Image);
+        mChangeFontSeekBar = (SeekBar) findViewById(R.id.note_edit_change_font_seek_bar);
         TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
@@ -71,10 +76,10 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             mNote.setType(Note.TYPE_NOTE);
             mNote.setParentId(Note.NO_PARENT);
             mNote.setColor(Color.YELLOW);
-            modifyTimeTextView.setText(CalendarUtil.getCurrentFormatText(getString(R.string.format_datetime_mdhm)));
+            modifyTimeTextView.setText(CalendarUtil.getMdhm(System.currentTimeMillis()));
         } else {
             mEditText.setText(mNote.getContent());
-            modifyTimeTextView.setText(CalendarUtil.getFormatText(getString(R.string.format_datetime_mdhm), mNote.getModifyTime()));
+            modifyTimeTextView.setText(CalendarUtil.getMdhm(mNote.getModifyTime()));
 
             switch (mNote.getColor()) {
                 case Color.YELLOW:
@@ -109,8 +114,17 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mScrollView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+
+                if (!mEditText.hasFocus()) {
+                    mEditText.requestFocus();
+                }
+
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(mEditText, 0);
+
                 mChangeColorRadioGroup.setVisibility(View.GONE);
                 mChangeFontDialog.setVisibility(View.GONE);
+
                 return false;
             }
         });
@@ -122,32 +136,32 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
                 switch (checkedId) {
                     case R.id.note_edit_yellow_radio_btn:
-                        mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_yellow));
-                        mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_yellow));
+                        mHeaderLayout.setBackgroundResource(R.drawable.notes_header_yellow);
+                        mScrollView.setBackgroundResource(R.drawable.notes_bg_yellow);
                         mNote.setColor(Color.YELLOW);
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
                     case R.id.note_edit_blue_radio_btn:
-                        mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_blue));
-                        mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_blue));
+                        mHeaderLayout.setBackgroundResource(R.drawable.notes_header_blue);
+                        mScrollView.setBackgroundResource(R.drawable.notes_bg_blue);
                         mNote.setColor(Color.BLUE);
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
                     case R.id.note_edit_pink_radio_btn:
-                        mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_pink));
-                        mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_pink));
+                        mHeaderLayout.setBackgroundResource(R.drawable.notes_header_pink);
+                        mScrollView.setBackgroundResource(R.drawable.notes_bg_pink);
                         mNote.setColor(Color.RED);
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
                     case R.id.note_edit_green_radio_btn:
-                        mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_green));
-                        mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_green));
+                        mHeaderLayout.setBackgroundResource(R.drawable.notes_header_green);
+                        mScrollView.setBackgroundResource(R.drawable.notes_bg_green);
                         mNote.setColor(Color.GREEN);
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
                     case R.id.note_edit_grey_radio_btn:
-                        mHeaderLayout.setBackground(getResources().getDrawable(R.drawable.notes_header_gray));
-                        mScrollView.setBackground(getResources().getDrawable(R.drawable.notes_bg_gray));
+                        mHeaderLayout.setBackgroundResource(R.drawable.notes_header_gray);
+                        mScrollView.setBackgroundResource(R.drawable.notes_bg_gray);
                         mNote.setColor(Color.GRAY);
                         mChangeColorRadioGroup.setVisibility(View.GONE);
                         break;
@@ -155,6 +169,35 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
             }
         });
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        float textSize = sharedPref.getFloat("fontSize", Resource.getSp(R.dimen.default_edit_text_font_size));
+        mEditText.setTextSize(textSize);
+
+        mChangeFontSeekBar.setMax(20);
+        mChangeFontSeekBar.setProgress(Math.round(textSize - 12));
+        mChangeFontSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mEditText.setTextSize(progress + 12);
+                SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putFloat("fontSize", mEditText.getTextSize());
+                editor.commit();
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //To change body of implemented methods use File | Settings | File Templates.
+            }
+        });
+
     }
 
     @Override
@@ -164,6 +207,18 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         getMenuInflater().inflate(R.menu.note_edit_menu, menu);
 
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        if (menu.hasVisibleItems()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
+        }
+        ;
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -270,6 +325,9 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                     mChangeColorRadioGroup.check(R.id.note_edit_grey_radio_btn);
             }
 
+            // Hidden the keyboard
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mEditText.getWindowToken(), 0);
             mChangeColorRadioGroup.setVisibility(View.VISIBLE);
         } else {
             mChangeColorRadioGroup.setVisibility(View.GONE);
@@ -287,7 +345,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
         mNote.setAlertTime(alertTime);
         mAlertImage.setVisibility(View.VISIBLE);
-        mAlertTimeTextView.setText(CalendarUtil.getFormatText(getString(R.string.format_datetime_mdhm), alertTime));
+        mAlertTimeTextView.setText(CalendarUtil.getMdhm(alertTime));
         mAlertTimeTextView.setVisibility(View.VISIBLE);
     }
 

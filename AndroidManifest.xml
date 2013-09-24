@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".activity.NoteAboutActivity"/>
-        <activity android:name=".activity.NoteEditActivity"/>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize"
+                android:name=".activity.NoteEditActivity"/>
     </application>
 
 </manifest>

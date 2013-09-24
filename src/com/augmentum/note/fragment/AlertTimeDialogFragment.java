@@ -23,7 +23,6 @@ public class AlertTimeDialogFragment extends DialogFragment {
     private OnNoteTimePickerListener mCallback;
     private Calendar mCalendar;
     private TimePicker mTimePicker;
-    private Button mDatePickerBtn;
 
     private static final String CALENDAR = "calendar";
 
@@ -57,25 +56,8 @@ public class AlertTimeDialogFragment extends DialogFragment {
         builder.setTitle(R.string.note_edit_set_alert_time_time);
         View view = View.inflate(getActivity(), R.layout.note_time_picker_dialog, null);
         builder.setView(view);
-        mDatePickerBtn = (Button) view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn);
 
-        mDatePickerBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
-                datePickerDialog.setCalendar(mCalendar);
-                datePickerDialog.setCallback(new DatePickerDialogFragment.OnDateListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        mCalendar.set(year, monthOfYear, dayOfMonth);
-                        String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
-                        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
-                    }
-                });
-                datePickerDialog.show(getActivity().getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
-            }
-        });
-
+        builder.setNegativeButton(android.R.string.cancel, null);
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -88,7 +70,6 @@ public class AlertTimeDialogFragment extends DialogFragment {
             }
         });
 
-        builder.setNegativeButton(android.R.string.cancel, null);
         mTimePicker = (TimePicker) view.findViewById(R.id.note_time_picker_dialog_timePicker);
         mTimePicker.setIs24HourView(DateFormat.is24HourFormat(getActivity()));
 
@@ -97,29 +78,38 @@ public class AlertTimeDialogFragment extends DialogFragment {
         }
 
         if (null == mCalendar) {
-            mCalendar = Calendar.getInstance();
-            mCalendar.setTimeInMillis(System.currentTimeMillis());
+            mCalendar = CalendarUtil.getCurrent();
         }
 
         mTimePicker.setCurrentHour(mCalendar.get(Calendar.HOUR_OF_DAY));
         mTimePicker.setCurrentMinute(mCalendar.get(Calendar.MINUTE));
+        final Button datePickerBtn = (Button) view.findViewById(R.id.note_time_picker_dialog_show_datePicker_btn);
 
-        String currentTimeFormat = getActivity().getResources().getString(R.string.format_date_ymdw);
-        mDatePickerBtn.setText(CalendarUtil.getFormatText(currentTimeFormat, mCalendar.getTimeInMillis()));
+        datePickerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DatePickerDialogFragment datePickerDialog = new DatePickerDialogFragment();
+                datePickerDialog.setCalendar(mCalendar);
+
+                datePickerDialog.setCallback(new DatePickerDialogFragment.OnDateListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                        mCalendar.set(year, monthOfYear, dayOfMonth);
+                        datePickerBtn.setText(CalendarUtil.getYmdw( mCalendar.getTimeInMillis()));
+                    }
+                });
+
+                datePickerDialog.show(getActivity().getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
+            }
+        });
+
+        datePickerBtn.setText(CalendarUtil.getYmdw(mCalendar.getTimeInMillis()));
 
         return builder.create();
     }
 
     public void setCalendar(Calendar calendar) {
         mCalendar = calendar;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        mCalendar.set(Calendar.HOUR_OF_DAY, mTimePicker.getCurrentHour());
-        mCalendar.set(Calendar.MINUTE, mTimePicker.getCurrentMinute());
-        outState.putSerializable(CALENDAR, mCalendar);
-        super.onSaveInstanceState(outState);
     }
 
 }

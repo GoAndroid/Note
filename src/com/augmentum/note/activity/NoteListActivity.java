@@ -272,10 +272,10 @@ public class NoteListActivity extends FragmentActivity {
             moveDialogFragment.setListener(new MoveDialogFragment.OnMoveListener() {
 
                 @Override
-                public void onItemClick(Note parent) {
+                public void onItemClick(int id) {
 
                     for (Note note : mNoteAdapter.getEditSet()) {
-                        note.setParentId(parent.getId());
+                        note.setParentId(id);
                         mNoteDao.update(note);
                     }
 

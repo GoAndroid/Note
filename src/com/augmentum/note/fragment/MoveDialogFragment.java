@@ -13,7 +13,7 @@ import java.util.List;
 public class MoveDialogFragment extends DialogFragment {
 
     public interface OnMoveListener {
-        public void onItemClick(Note parent);
+        public void onItemClick(int id);
     }
 
     private OnMoveListener mListener;
@@ -36,7 +36,7 @@ public class MoveDialogFragment extends DialogFragment {
         builder.setItems(folderSubjects, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                 mListener.onItemClick(folders.get(which));
+                 mListener.onItemClick(folders.get(which).getId());
             }
         });
 

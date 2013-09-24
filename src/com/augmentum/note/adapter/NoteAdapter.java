@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.augmentum.note.R;
 import com.augmentum.note.model.Note;
+import com.augmentum.note.util.Resource;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -15,10 +16,10 @@ import java.util.*;
 public class NoteAdapter extends BaseAdapter {
 
     private Context mContext;
-    private List<Note> mList;
-    private Set<Note> mEditSet = new HashSet<Note>();
     private boolean mIsDeleteState;
     private boolean mIsMoveState;
+    private List<Note> mList;
+    private Set<Note> mEditSet = new HashSet<Note>();
 
     public NoteAdapter(Context context, List<Note> list) {
         mContext = context;
@@ -61,19 +62,6 @@ public class NoteAdapter extends BaseAdapter {
             convertView = LayoutInflater.from(mContext).inflate(R.layout.list_note_item, null);
             holder = new ViewHolder(convertView);
 
-            holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (mIsDeleteState || mIsMoveState) {
-                        if (isChecked) {
-                            mEditSet.add(mList.get(position));
-                        } else {
-                            mEditSet.remove(mList.get(position));
-                        }
-                    }
-                }
-            });
-
             if (convertView != null) {
                 convertView.setTag(holder);
             }
@@ -81,6 +69,24 @@ public class NoteAdapter extends BaseAdapter {
         } else {
             holder = (ViewHolder) convertView.getTag();
         }
+
+        holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                if (mIsDeleteState || mIsMoveState) {
+
+                    if (isChecked) {
+                        mEditSet.add(mList.get(position));
+                    } else {
+                        mEditSet.remove(mList.get(position));
+                    }
+
+                }
+
+            }
+        });
+
 
         if (Note.TYPE_NOTE == mList.get(position).getType()) {
 
@@ -112,8 +118,8 @@ public class NoteAdapter extends BaseAdapter {
                 holder.mTimeTextView.setText(null);
             }
 
-            holder.mTitleTextView.setText(mList.get(position).getSubject() +
-                    " (" + mList.get(position).getChildCount() + ") ");
+            holder.mTitleTextView.setText(mList.get(position).getSubject()
+                    + " (" + mList.get(position).getChildCount() + ") ");
         }
 
         if (!isMatch(convertView)) {
@@ -159,9 +165,9 @@ public class NoteAdapter extends BaseAdapter {
         modifyTime.setTimeInMillis(mList.get(position).getModifyTime());
 
         if (currentTime.get(Calendar.DATE) == modifyTime.get(Calendar.DATE)) {
-            sdf = new SimpleDateFormat(mContext.getResources().getString(R.string.format_time_hm));
+            sdf = new SimpleDateFormat(Resource.getString(R.string.format_time_hm));
         } else {
-            sdf = new SimpleDateFormat(mContext.getResources().getString(R.string.format_week));
+            sdf = new SimpleDateFormat(Resource.getString(R.string.format_week));
         }
 
         holder.mTimeTextView.setText(sdf.format(new Date(mList.get(position).getModifyTime())));
