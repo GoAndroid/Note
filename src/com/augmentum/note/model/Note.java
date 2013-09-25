@@ -7,7 +7,9 @@ import java.io.Serializable;
 public class Note implements Serializable {
 
     private static final long serialVersionUID = -2454978783620245981L;
-    
+    public static final String PARENT_TAG = "Parent";
+    public static final String NOTE_TAG = "note";
+
     public static final int NO_PARENT = -1;
     public static final int TYPE_NOTE = 1;
     public static final int TYPE_FOLDER = 2;
@@ -15,11 +17,11 @@ public class Note implements Serializable {
     public static final int ENTER_DESKTOP_FLAG_TRUE = 1;
 
     private int mChildCount;
-    private int mId;
+    private long mId;
+    private long mParentId;
     private int mType;
     private int mColor;
     private int mEnterDesktopFlag;
-    private int mParentId;
     private int mWidgetId;
     private long mCreateTime;
     private long mModifyTime;
@@ -52,7 +54,7 @@ public class Note implements Serializable {
 
     @Override
     public int hashCode() {
-        return 29 * getId() + 17 * getType();
+        return 29 * (int) getId() + 17 * getType();
     }
 
     public int getChildCount() {
@@ -63,11 +65,11 @@ public class Note implements Serializable {
         mChildCount = childCount;
     }
 
-    public int getId() {
+    public long getId() {
         return mId;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         mId = id;
     }
 
@@ -95,11 +97,11 @@ public class Note implements Serializable {
         mEnterDesktopFlag = enterDesktopFlag;
     }
 
-    public int getParentId() {
+    public long getParentId() {
         return mParentId;
     }
 
-    public void setParentId(int parentId) {
+    public void setParentId(long parentId) {
         mParentId = parentId;
     }
 

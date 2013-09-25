@@ -30,9 +30,11 @@ public class NoteDaoImpl implements NoteDao {
      * if is a folder_type insert with subject.
      *
      * @param note which <code>note</code> object will be insert
+     * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
     @Override
-    public void insert(Note note) {
+    public long insert(Note note) {
+        long result = 0;
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(Note.NoteEntry.COLUMN_NAME_TYPE, note.getType());
@@ -43,13 +45,16 @@ public class NoteDaoImpl implements NoteDao {
             values.put(Note.NoteEntry.COLUMN_NAME_COLOR, note.getColor());
             values.put(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME, note.getModifyTime());
             values.put(Note.NoteEntry.COLUMN_NAME_CONTENT, note.getContent());
+            values.put(Note.NoteEntry.COLUMN_NAME_ALERT_TIME, note.getAlertTime());
         } else {
             values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
         }
 
         if (db != null) {
-            db.insert(Note.NoteEntry.TABLE_NAME, null, values);
+            result = db.insert(Note.NoteEntry.TABLE_NAME, null, values);
         }
+
+        return result;
     }
 
     /**
@@ -69,6 +74,7 @@ public class NoteDaoImpl implements NoteDao {
             values.put(Note.NoteEntry.COLUMN_NAME_COLOR, note.getColor());
             values.put(Note.NoteEntry.COLUMN_NAME_CONTENT, note.getContent());
             values.put(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME, note.getModifyTime());
+            values.put(Note.NoteEntry.COLUMN_NAME_ALERT_TIME, note.getAlertTime());
         } else {
             values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
         }
@@ -134,7 +140,8 @@ public class NoteDaoImpl implements NoteDao {
                 Note.NoteEntry.COLUMN_NAME_CONTENT,
                 Note.NoteEntry.COLUMN_NAME_SUBJECT,
                 Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME
+                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
+                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
         };
 
         String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID +
@@ -168,6 +175,7 @@ public class NoteDaoImpl implements NoteDao {
                 note.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
                 note.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
                 note.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
+                note.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
             }
 
             if (Note.TYPE_FOLDER == note.getType()) {
@@ -205,7 +213,8 @@ public class NoteDaoImpl implements NoteDao {
                 Note.NoteEntry.COLUMN_NAME_CONTENT,
                 Note.NoteEntry.COLUMN_NAME_SUBJECT,
                 Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME
+                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
+                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
         };
         String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ?";
         String[] selectionArgs = {String.valueOf(parent.getId())};
@@ -237,6 +246,7 @@ public class NoteDaoImpl implements NoteDao {
             noteTemp.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
             noteTemp.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
             noteTemp.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
+            noteTemp.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
             list.add(noteTemp);
         }
 

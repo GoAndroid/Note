@@ -12,8 +12,9 @@ public interface NoteDao {
      * if is a folder_type insert with subject.
      *
      * @param note which <code>note</code> object will be insert
+     * @return the row ID of the newly inserted row, or -1 if an error occurred
      */
-    public void insert(Note note);
+    public long insert(Note note);
 
     /**
      * Update a <code>Note</code> object to database,
@@ -51,4 +52,5 @@ public interface NoteDao {
      * @return a list of folder type <code>Note</code> Object
      */
     public List<Note> getFolders();
+
 }

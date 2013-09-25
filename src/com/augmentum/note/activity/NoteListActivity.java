@@ -14,24 +14,21 @@ import com.augmentum.note.R;
 import com.augmentum.note.adapter.NoteAdapter;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
-import com.augmentum.note.fragment.DeleteDialogFragment;
+import com.augmentum.note.fragment.ConfirmDialogFragment;
 import com.augmentum.note.fragment.ExportDialogFragment;
 import com.augmentum.note.fragment.MoveDialogFragment;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoteListActivity extends FragmentActivity {
-
-    public static final String PARENT_TAG = "Parent";
-    public static final String NOTE_TAG = "note";
-    public static final String DELETE_DIALOG_FRAGMENT = "deleteDialogFragment";
-    public static final String MOVE_DIALOG_FRAGMENT = "moveDialogFragment";
-    public static final String EXPORT_SD_FRAGMENT = "exportSdFragment";
-    public static final String EXPORT_TXT_FRAGMENT = "exportTxtFragment";
-    public static final String SET_PASSWORD_DIALOG_FRAGMENT = "setPasswordDialogFragment";
 
     private LinearLayout mDeleteDialog;
     private LinearLayout mMoveDialog;
@@ -56,7 +53,7 @@ public class NoteListActivity extends FragmentActivity {
         initView();
 
         Intent intent = getIntent();
-        mParent = (Note) intent.getSerializableExtra(PARENT_TAG);
+        mParent = (Note) intent.getSerializableExtra(Note.PARENT_TAG);
 
         if (null != mParent) {
             mIsFolderState = true;
@@ -83,12 +80,12 @@ public class NoteListActivity extends FragmentActivity {
                 if (Note.TYPE_NOTE == mList.get(position).getType()) {
                     Intent intent = new Intent();
                     intent.setClass(NoteListActivity.this, NoteEditActivity.class);
-                    intent.putExtra(NOTE_TAG, mList.get(position));
+                    intent.putExtra(Note.NOTE_TAG, mList.get(position));
                     startActivity(intent);
                 } else {
                     Intent intent = new Intent();
                     intent.setClass(NoteListActivity.this, NoteListActivity.class);
-                    intent.putExtra(PARENT_TAG, mList.get(position));
+                    intent.putExtra(Note.PARENT_TAG, mList.get(position));
                     startActivity(intent);
                 }
 
@@ -153,7 +150,7 @@ public class NoteListActivity extends FragmentActivity {
                         // TODO
                     }
                 });
-                exportSdDialogFragment.show(getSupportFragmentManager(), EXPORT_SD_FRAGMENT);
+                exportSdDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_SD);
                 return true;
             case R.id.note_list_menu_delete:
                 mNoteAdapter.setDeleteState(true);
@@ -168,7 +165,7 @@ public class NoteListActivity extends FragmentActivity {
                         // TODO
                     }
                 });
-                exportDialogFragment.show(getSupportFragmentManager(), EXPORT_TXT_FRAGMENT);
+                exportDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_TXT);
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -185,7 +182,7 @@ public class NoteListActivity extends FragmentActivity {
                 return true;
             case R.id.note_list_menu_set_password:
                 DialogFragment dialog = new SetPasswordDialogFragment();
-                dialog.show(getSupportFragmentManager(), SET_PASSWORD_DIALOG_FRAGMENT);
+                dialog.show(getSupportFragmentManager(), SetPasswordDialogFragment.TAG);
                 return true;
             case R.id.note_folder_menu_new_note:
                 intent.setClass(NoteListActivity.this, NoteEditActivity.class);
@@ -218,7 +215,7 @@ public class NoteListActivity extends FragmentActivity {
     public void onAddNote(View view) {
         Intent intent = new Intent();
         intent.setClass(NoteListActivity.this, NoteEditActivity.class);
-        intent.putExtra(PARENT_TAG, mParent);
+        intent.putExtra(Note.PARENT_TAG, mParent);
         startActivity(intent);
     }
 
@@ -234,15 +231,15 @@ public class NoteListActivity extends FragmentActivity {
         }
 
         if (hasNoEmptyFolder) {
-            DeleteDialogFragment deleteDialogFragment = new DeleteDialogFragment();
-            deleteDialogFragment.setMessage(R.string.note_edit_delete_confirm_hasNoEmptyFolder);
-            deleteDialogFragment.setListener(new DeleteDialogFragment.OnDeleteListener() {
+            ConfirmDialogFragment confirmDialogFragment = new ConfirmDialogFragment();
+            confirmDialogFragment.setMessage(R.string.note_edit_delete_confirm_hasNoEmptyFolder);
+            confirmDialogFragment.setPositiveClickListener(new ConfirmDialogFragment.OnPositiveClickListener() {
                 @Override
-                public void onPositiveClick() {
+                public void onClick() {
                     deleteNote();
                 }
             });
-            deleteDialogFragment.show(getSupportFragmentManager(), DELETE_DIALOG_FRAGMENT);
+            confirmDialogFragment.show(getSupportFragmentManager(), ConfirmDialogFragment.TAG);
         } else {
             deleteNote();
         }
@@ -274,7 +271,7 @@ public class NoteListActivity extends FragmentActivity {
             moveDialogFragment.setListener(new MoveDialogFragment.OnMoveListener() {
 
                 @Override
-                public void onItemClick(int id) {
+                public void onItemClick(long id) {
 
                     for (Note note : mNoteAdapter.getEditSet()) {
                         note.setParentId(id);
@@ -289,7 +286,7 @@ public class NoteListActivity extends FragmentActivity {
                 }
             });
 
-            moveDialogFragment.show(getSupportFragmentManager(), MOVE_DIALOG_FRAGMENT);
+            moveDialogFragment.show(getSupportFragmentManager(), MoveDialogFragment.TAG);
         } else {
 
             for (Note note : mNoteAdapter.getEditSet()) {
@@ -348,5 +345,31 @@ public class NoteListActivity extends FragmentActivity {
             mList.addAll(mNoteDao.getAllNoParent());
         }
 
+    }
+
+    private void exportToXml() {
+        try {
+            FileOutputStream os = openFileOutput("note.xml", MODE_PRIVATE);
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            org.xmlpull.v1.XmlSerializer xmlSerializer = factory.newSerializer();
+            xmlSerializer.setOutput(os, "utf-8");
+            xmlSerializer.startDocument("utf-8", true);
+            xmlSerializer.startTag("myNameSpace", "Students");
+
+            for (Note note : mList) {
+                xmlSerializer.startTag(null, "note");
+                xmlSerializer.attribute(null, Note.NoteEntry._ID, String.valueOf(note.getId()));
+
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+//To change body of catch statement use File | Settings | File Templates.
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+//To change body of catch statement use File | Settings | File Templates.
+        } catch (IOException e) {
+            e.printStackTrace();
+//To change body of catch statement use File | Settings | File Templates.
+        }
     }
 }

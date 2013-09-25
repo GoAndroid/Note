@@ -12,8 +12,10 @@ import java.util.List;
 
 public class MoveDialogFragment extends DialogFragment {
 
+    public static final String TAG = "moveDialogFragment";
+
     public interface OnMoveListener {
-        public void onItemClick(int id);
+        public void onItemClick(long id);
     }
 
     private OnMoveListener mListener;

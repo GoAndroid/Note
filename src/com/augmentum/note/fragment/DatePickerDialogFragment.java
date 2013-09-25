@@ -10,6 +10,8 @@ import java.util.Calendar;
 
 public class DatePickerDialogFragment extends DialogFragment implements DatePickerDialog.OnDateSetListener {
 
+    public static final String TAG = "datePickerDialogFragment";
+
     public interface OnDateListener {
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth);
     }

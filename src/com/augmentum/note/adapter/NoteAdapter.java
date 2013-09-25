@@ -142,7 +142,7 @@ public class NoteAdapter extends BaseAdapter {
 
         }
 
-        if (0 < mList.get(position).getAlertTime()) {
+        if (System.currentTimeMillis() < mList.get(position).getAlertTime()) {
             holder.mAlertImageView.setVisibility(View.VISIBLE);
         } else {
             holder.mAlertImageView.setVisibility(View.GONE);

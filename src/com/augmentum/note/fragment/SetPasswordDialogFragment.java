@@ -9,6 +9,8 @@ import com.augmentum.note.R;
 
 public class SetPasswordDialogFragment extends DialogFragment {
 
+    public static final String TAG = "setPasswordDialogFragment";
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

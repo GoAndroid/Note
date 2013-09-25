@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -18,7 +17,7 @@ import java.util.Calendar;
 
 public class AlertTimeDialogFragment extends DialogFragment {
 
-    public static final String DATE_PICKER_DIALOG_FRAGMENT = "datePickerDialogFragment";
+    public static final String TAG = "alertTimeDialogFragment";
 
     private OnNoteTimePickerListener mCallback;
     private Calendar mCalendar;
@@ -71,7 +70,7 @@ public class AlertTimeDialogFragment extends DialogFragment {
         });
 
         mTimePicker = (TimePicker) view.findViewById(R.id.note_time_picker_dialog_timePicker);
-        mTimePicker.setIs24HourView(DateFormat.is24HourFormat(getActivity()));
+        mTimePicker.setIs24HourView(true);
 
         if (null != savedInstanceState) {
             mCalendar = (Calendar) savedInstanceState.getSerializable(CALENDAR);
@@ -99,7 +98,7 @@ public class AlertTimeDialogFragment extends DialogFragment {
                     }
                 });
 
-                datePickerDialog.show(getActivity().getSupportFragmentManager(), DATE_PICKER_DIALOG_FRAGMENT);
+                datePickerDialog.show(getActivity().getSupportFragmentManager(), DatePickerDialogFragment.TAG);
             }
         });
 

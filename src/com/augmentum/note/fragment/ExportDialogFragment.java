@@ -10,6 +10,9 @@ import com.augmentum.note.R;
 
 public class ExportDialogFragment extends DialogFragment {
 
+    public static final String TAG_SD = "exportSdFragment";
+    public static final String TAG_TXT = "exportTxtFragment";
+
     public interface OnExportListener {
         public void onItemClick();
     }

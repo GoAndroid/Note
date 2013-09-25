@@ -1,11 +1,15 @@
 package com.augmentum.note.activity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -16,16 +20,15 @@ import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.AlertTimeDialogFragment;
-import com.augmentum.note.fragment.DeleteDialogFragment;
+import com.augmentum.note.fragment.ConfirmDialogFragment;
 import com.augmentum.note.model.Note;
+import com.augmentum.note.receiver.AlarmReceiver;
 import com.augmentum.note.util.CalendarUtil;
 import com.augmentum.note.util.Resource;
 
 import java.util.Calendar;
 
 public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
-
-    public static final String ALERT_DIALOG_FRAGMENT = "alertDialogFragment";
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
@@ -37,6 +40,8 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private ImageView mAlertImage;
     private NoteDao mNoteDao;
     private Note mParent;
+
+    boolean hasAlarm;
 
     /**
      * Called when the activity is first created.
@@ -66,8 +71,8 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
-        mParent = (Note) intent.getSerializableExtra(NoteListActivity.PARENT_TAG);
-        mNote = (Note) intent.getSerializableExtra(NoteListActivity.NOTE_TAG);
+        mParent = (Note) intent.getSerializableExtra(Note.PARENT_TAG);
+        mNote = (Note) intent.getSerializableExtra(Note.NOTE_TAG);
 
         if (null == mNote) {
             mNote = new Note();
@@ -79,6 +84,14 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         } else {
             mEditText.setText(mNote.getContent());
             modifyTimeTextView.setText(CalendarUtil.getFormatMdhm(mNote.getModifyTime()));
+
+            if (System.currentTimeMillis() < mNote.getAlertTime()) {
+                hasAlarm = true;
+                mAlertImage.setVisibility(View.VISIBLE);
+                mAlertTimeTextView.setText(CalendarUtil.getFormatMdhm(mNote.getAlertTime()));
+                mAlertTimeTextView.setVisibility(View.VISIBLE);
+            }
+
             initEditTextBackground();
         }
 
@@ -128,13 +141,13 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             case R.id.note_edit_menu_checklist:
                 return true;
             case R.id.note_edit_menu_delete:
-                DeleteDialogFragment deleteDialog = new DeleteDialogFragment();
+                ConfirmDialogFragment deleteDialog = new ConfirmDialogFragment();
                 deleteDialog.setMessage(R.string.dialog_delete_confirm);
 
-                deleteDialog.setListener(new DeleteDialogFragment.OnDeleteListener() {
+                deleteDialog.setPositiveClickListener(new ConfirmDialogFragment.OnPositiveClickListener() {
 
                     @Override
-                    public void onPositiveClick() {
+                    public void onClick() {
 
                         if (0 < mNote.getId()) {
                             mNoteDao.delete(mNote);
@@ -151,7 +164,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             case R.id.note_edit_menu_remind:
                 Calendar alertCalendar = Calendar.getInstance();
 
-                if (0 < mNote.getAlertTime()) {
+                if (System.currentTimeMillis() < mNote.getAlertTime()) {
                     alertCalendar.setTimeInMillis(mNote.getAlertTime());
                 } else {
                     alertCalendar.setTimeInMillis(System.currentTimeMillis());
@@ -159,7 +172,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
                 AlertTimeDialogFragment alertDialog = new AlertTimeDialogFragment();
                 alertDialog.setCalendar(alertCalendar);
-                alertDialog.show(getSupportFragmentManager(), ALERT_DIALOG_FRAGMENT);
+                alertDialog.show(getSupportFragmentManager(), AlertTimeDialogFragment.TAG);
                 return true;
             case R.id.note_edit_menu_share:
                 return true;
@@ -187,9 +200,17 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         if (0 < mNote.getId()) {
             mNoteDao.update(mNote);
         } else {
-            mNoteDao.insert(mNote);
+            long id = mNoteDao.insert(mNote);
+            mNote.setId(id);
         }
 
+        if (hasAlarm) {
+            Log.v("NoteEditActivity", "alertTime" + mNote.getAlertTime());
+            Log.v("NoteEditActivity", "currentTime" + System.currentTimeMillis());
+            initAlarm();
+        } else {
+            cancelAlarm();
+        }
     }
 
     /**
@@ -238,6 +259,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             return;
         }
 
+        hasAlarm = true;
         mNote.setAlertTime(alertTime);
         mAlertImage.setVisibility(View.VISIBLE);
         mAlertTimeTextView.setText(CalendarUtil.getFormatMdhm(alertTime));
@@ -310,7 +332,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             mEditText.setTextSize(progress + 12);
             SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putFloat("fontSize", mEditText.getTextSize());
+            editor.putFloat("fontSize", progress + 12);
             editor.commit();
         }
 
@@ -353,5 +375,27 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 mNote.setColor(Color.GRAY);
                 break;
         }
+    }
+
+    private void initAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        int alarmType = AlarmManager.RTC_WAKEUP;
+
+        long alarmTime = mNote.getAlertTime();
+
+        Intent alarmIntent = new Intent();
+        alarmIntent.setAction(AlarmReceiver.ALARM_ACTION);
+        alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        alarmManager.set(alarmType, alarmTime, alarmPendingIntent);
+    }
+
+    private void cancelAlarm() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent alarmIntent = new Intent();
+        alarmIntent.setAction(AlarmReceiver.ALARM_ACTION);
+        alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        alarmManager.cancel(alarmPendingIntent);
     }
 }
