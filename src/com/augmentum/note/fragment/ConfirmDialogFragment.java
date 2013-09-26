@@ -74,7 +74,7 @@ public class ConfirmDialogFragment extends DialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (null != mNegativeClickListener) {
+                if (null != mPositiveClickListener) {
                     mPositiveClickListener.onClick();
                 }
 

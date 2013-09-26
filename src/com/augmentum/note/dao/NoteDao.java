@@ -53,4 +53,22 @@ public interface NoteDao {
      */
     public List<Note> getFolders();
 
+    /**
+     * Get all <code>Note</code> object which in database.
+     * @return a list of <code>Note</code> object.
+     */
+    public List<Note> getAll();
+
+    /**
+     * Delete all <code>Note</code> object in database.
+     */
+    public void deleteAll();
+
+    /**
+     * Restore notes from a list of note
+     * @param notes restore list.
+     */
+    void insertALL(List<Note> notes);
+
+    int[] getCount();
 }

@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class Note implements Serializable {
 
     private static final long serialVersionUID = -2454978783620245981L;
-    public static final String PARENT_TAG = "Parent";
+    public static final String PARENT_TAG = "parent";
     public static final String NOTE_TAG = "note";
 
     public static final int NO_PARENT = -1;

@@ -2,6 +2,7 @@ package com.augmentum.note.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -19,12 +20,8 @@ import com.augmentum.note.fragment.ExportDialogFragment;
 import com.augmentum.note.fragment.MoveDialogFragment;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
-import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+import com.augmentum.note.util.XmlUtil;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,8 +109,22 @@ public class NoteListActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
 
-        initList();
-        mNoteAdapter.notifyDataSetChanged();
+        notifyListDatachange();
+    }
+
+    private void notifyListDatachange() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                initList();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mNoteAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        }).start();
     }
 
     @Override
@@ -146,8 +157,21 @@ public class NoteListActivity extends FragmentActivity {
                 ExportDialogFragment exportSdDialogFragment = new ExportDialogFragment();
                 exportSdDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
                     @Override
-                    public void onItemClick() {
-                        // TODO
+                    public void onItemClick(final int which) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                exportToSd();
+
+                                if (1 == which) {
+                                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                                    emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + XmlUtil.FILE_NAME));
+                                    emailIntent.setType("plain/text");
+                                    startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                }
+
+                            }
+                        }).start();
                     }
                 });
                 exportSdDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_SD);
@@ -158,14 +182,14 @@ public class NoteListActivity extends FragmentActivity {
                 mDeleteDialog.setVisibility(View.VISIBLE);
                 return true;
             case R.id.note_list_menu_export_txt_file:
-                ExportDialogFragment exportDialogFragment = new ExportDialogFragment();
-                exportDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
+                ExportDialogFragment exportTxtDialogFragment = new ExportDialogFragment();
+                exportTxtDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
                     @Override
-                    public void onItemClick() {
-                        // TODO
+                    public void onItemClick(int which) {
+                        XmlUtil.exportTotxt();
                     }
                 });
-                exportDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_TXT);
+                exportTxtDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_TXT);
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -179,6 +203,27 @@ public class NoteListActivity extends FragmentActivity {
                 mFolderDialogText.requestFocus();
                 return true;
             case R.id.note_list_menu_restore_from_sd:
+                ConfirmDialogFragment confirmDialogFragment = new ConfirmDialogFragment();
+                confirmDialogFragment.setMessage(R.string.note_list_sdcard_infomation);
+                confirmDialogFragment.setPositiveClickListener(new ConfirmDialogFragment.OnPositiveClickListener() {
+                    @Override
+                    public void onClick() {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                restoreFromSd();
+                                initList();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mNoteAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        }).start();
+                    }
+                });
+                confirmDialogFragment.show(getSupportFragmentManager(), "confirm_restore");
                 return true;
             case R.id.note_list_menu_set_password:
                 DialogFragment dialog = new SetPasswordDialogFragment();
@@ -252,9 +297,8 @@ public class NoteListActivity extends FragmentActivity {
         }
 
         mNoteAdapter.getEditSet().clear();
-        initList();
         mNoteAdapter.setDeleteState(false);
-        mNoteAdapter.notifyDataSetChanged();
+        notifyListDatachange();
         mDeleteDialog.setVisibility(View.GONE);
     }
 
@@ -279,9 +323,8 @@ public class NoteListActivity extends FragmentActivity {
                     }
 
                     mNoteAdapter.getEditSet().clear();
-                    initList();
                     mNoteAdapter.setMoveState(false);
-                    mNoteAdapter.notifyDataSetChanged();
+                    notifyListDatachange();
                     mMoveDialog.setVisibility(View.GONE);
                 }
             });
@@ -295,9 +338,8 @@ public class NoteListActivity extends FragmentActivity {
             }
 
             mNoteAdapter.getEditSet().clear();
-            initList();
             mNoteAdapter.setMoveState(false);
-            mNoteAdapter.notifyDataSetChanged();
+            notifyListDatachange();
             mMoveDialog.setVisibility(View.GONE);
         }
 
@@ -327,8 +369,7 @@ public class NoteListActivity extends FragmentActivity {
             mNoteDao.insert(note);
         }
 
-        initList();
-        mNoteAdapter.notifyDataSetChanged();
+        notifyListDatachange();
         mAddFolderDialog.setVisibility(View.GONE);
     }
 
@@ -347,29 +388,17 @@ public class NoteListActivity extends FragmentActivity {
 
     }
 
-    private void exportToXml() {
-        try {
-            FileOutputStream os = openFileOutput("note.xml", MODE_PRIVATE);
-            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-            org.xmlpull.v1.XmlSerializer xmlSerializer = factory.newSerializer();
-            xmlSerializer.setOutput(os, "utf-8");
-            xmlSerializer.startDocument("utf-8", true);
-            xmlSerializer.startTag("myNameSpace", "Students");
+    private void exportToSd() {
+        XmlUtil.serialize();
+    }
 
-            for (Note note : mList) {
-                xmlSerializer.startTag(null, "note");
-                xmlSerializer.attribute(null, Note.NoteEntry._ID, String.valueOf(note.getId()));
+    private void restoreFromSd() {
+        List<Note> notes = XmlUtil.deserialize();
+        mNoteDao.deleteAll();
 
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-//To change body of catch statement use File | Settings | File Templates.
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-//To change body of catch statement use File | Settings | File Templates.
-        } catch (IOException e) {
-            e.printStackTrace();
-//To change body of catch statement use File | Settings | File Templates.
+        if (0 < notes.size()) {
+            mNoteDao.insertALL(notes);
         }
+
     }
 }

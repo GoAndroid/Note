@@ -14,7 +14,7 @@ public class ExportDialogFragment extends DialogFragment {
     public static final String TAG_TXT = "exportTxtFragment";
 
     public interface OnExportListener {
-        public void onItemClick();
+        public void onItemClick(int which);
     }
 
     private OnExportListener mListener;
@@ -31,7 +31,7 @@ public class ExportDialogFragment extends DialogFragment {
         builder.setItems(R.array.note_list_export, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                mListener.onItemClick();
+                mListener.onItemClick(which);
             }
         });
 
