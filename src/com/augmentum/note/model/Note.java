@@ -1,10 +1,10 @@
 package com.augmentum.note.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.BaseColumns;
 
-import java.io.Serializable;
-
-public class Note implements Serializable {
+public class Note implements Parcelable {
 
     private static final long serialVersionUID = -2454978783620245981L;
     public static final String PARENT_TAG = "parent";
@@ -151,6 +151,51 @@ public class Note implements Serializable {
 
     public void setSubject(String subject) {
         mSubject = subject;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(mId);
+        dest.writeLong(mParentId);
+        dest.writeInt(mType);
+        dest.writeLong(mCreateTime);
+        dest.writeLong(mModifyTime);
+        dest.writeLong(mAlertTime);
+        dest.writeInt(mColor);
+        dest.writeString(mContent);
+        dest.writeString(mSubject);
+        dest.writeInt(mEnterDesktopFlag);
+    }
+
+    public static final Parcelable.Creator<Note> CREATOR = new Parcelable.Creator<Note>() {
+
+        @Override
+        public Note createFromParcel(Parcel source) {
+            return new Note(source);
+        }
+
+        @Override
+        public Note[] newArray(int size) {
+            return new Note[size];
+        }
+    };
+
+    private Note(Parcel source) {
+        mId = source.readLong();
+        mParentId = source.readLong();
+        mType = source.readInt();
+        mCreateTime = source.readLong();
+        mModifyTime = source.readLong();
+        mAlertTime = source.readLong();
+        mColor = source.readInt();
+        mContent = source.readString();
+        mSubject = source.readString();
+        mEnterDesktopFlag = source.readInt();
     }
 
     public static abstract class NoteEntry implements BaseColumns {

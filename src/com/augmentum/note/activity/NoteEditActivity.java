@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -71,8 +72,8 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
-        mParent = (Note) intent.getSerializableExtra(Note.PARENT_TAG);
-        mNote = (Note) intent.getSerializableExtra(Note.NOTE_TAG);
+        mParent = (Note) intent.getParcelableExtra(Note.PARENT_TAG);
+        mNote = (Note) intent.getParcelableExtra(Note.NOTE_TAG);
 
         if (null == mNote) {
             mNote = new Note();
@@ -134,6 +135,16 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
         switch (item.getItemId()) {
             case R.id.note_edit_menu_add_shortcut:
+                if (0 < mNote.getId()) {
+                    Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+                    shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mNote.getContent());
+                    Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_group);
+                    shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+                    Intent callIntent = new Intent(this, NoteEditActivity.class);
+                    // callIntent.putExtra(Note.PARENT_TAG, mNote);
+                    shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, callIntent);
+                    sendBroadcast(shortcutIntent);
+                }
                 return true;
             case R.id.note_edit_menu_change_font_size:
                 mChangeFontDialog.setVisibility(View.VISIBLE);
@@ -160,6 +171,9 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 deleteDialog.show(getSupportFragmentManager(), "deleteDialog");
                 return true;
             case R.id.note_edit_menu_new_note:
+                Intent intent = new Intent();
+                intent.setClass(this, NoteEditActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.note_edit_menu_remind:
                 Calendar alertCalendar = Calendar.getInstance();
@@ -397,5 +411,22 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
         alarmManager.cancel(alarmPendingIntent);
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (!getSupportFragmentManager().popBackStackImmediate()) {
+            Intent intent = new Intent();
+            intent.setClass(this, NoteListActivity.class);
+            startActivity(intent);
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
     }
 }

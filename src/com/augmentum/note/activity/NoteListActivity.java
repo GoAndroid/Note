@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -36,6 +37,7 @@ public class NoteListActivity extends FragmentActivity {
     private NoteDao mNoteDao;
     private boolean mIsFolderState;
     private Note mParent;
+    private TextView mHeaderTextView;
 
     /**
      * Called when the activity is first created.
@@ -50,12 +52,12 @@ public class NoteListActivity extends FragmentActivity {
         initView();
 
         Intent intent = getIntent();
-        mParent = (Note) intent.getSerializableExtra(Note.PARENT_TAG);
+        mParent = (Note) intent.getParcelableExtra(Note.PARENT_TAG);
 
         if (null != mParent) {
             mIsFolderState = true;
-            TextView headerTextView = (TextView) findViewById(R.id.note_list_title);
-            headerTextView.setText(mParent.getSubject());
+            mHeaderTextView = (TextView) findViewById(R.id.note_list_title);
+            mHeaderTextView.setText(mParent.getSubject());
         }
 
     }
@@ -185,8 +187,21 @@ public class NoteListActivity extends FragmentActivity {
                 ExportDialogFragment exportTxtDialogFragment = new ExportDialogFragment();
                 exportTxtDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
                     @Override
-                    public void onItemClick(int which) {
-                        XmlUtil.exportTotxt();
+                    public void onItemClick(final int which) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                String fileName = XmlUtil.exportTotxt();
+
+                                if (1 == which) {
+                                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                                    emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + fileName));
+                                    emailIntent.setType("plain/text");
+                                    startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                }
+                            }
+                        }).start();
+
                     }
                 });
                 exportTxtDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_TXT);
@@ -200,6 +215,7 @@ public class NoteListActivity extends FragmentActivity {
                 return true;
             case R.id.note_list_menu_new_folder:
                 mAddFolderDialog.setVisibility(View.VISIBLE);
+                mFolderDialogText.setText(null);
                 mFolderDialogText.requestFocus();
                 return true;
             case R.id.note_list_menu_restore_from_sd:
@@ -250,6 +266,14 @@ public class NoteListActivity extends FragmentActivity {
                 mDeleteDialog.setVisibility(View.VISIBLE);
                 return true;
             case R.id.note_folder_menu_add_shortcut:
+                Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+                shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mParent.getSubject());
+                Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_group);
+                shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+                Intent callIntent = new Intent(this, NoteListActivity.class);
+                callIntent.putExtra(Note.PARENT_TAG, mParent);
+                shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, callIntent);
+                sendBroadcast(shortcutIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -360,7 +384,8 @@ public class NoteListActivity extends FragmentActivity {
 
         if (mIsFolderState) {
             mParent.setSubject(mFolderDialogText.getText().toString());
-            mNoteDao.update(note);
+            mNoteDao.update(mParent);
+            mHeaderTextView.setText(mFolderDialogText.getText().toString());
         } else {
             note.setSubject(mFolderDialogText.getText().toString());
             note.setCreateTime(System.currentTimeMillis());

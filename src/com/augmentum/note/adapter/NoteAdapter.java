@@ -87,7 +87,6 @@ public class NoteAdapter extends BaseAdapter {
             }
         });
 
-
         if (Note.TYPE_NOTE == mList.get(position).getType()) {
 
             switch (mList.get(position).getColor()) {

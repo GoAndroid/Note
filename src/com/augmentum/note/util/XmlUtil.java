@@ -226,14 +226,14 @@ public class XmlUtil {
 
     }
 
-    public static void exportTotxt() {
+    public static String exportTotxt() {
         makedir();
         FileWriter fileWriter = null;
+        String currentTimeYmd = CalendarUtil.getFormatYmd(System.currentTimeMillis());
+        String currentTimeMdhm = CalendarUtil.getFormatMdhm(System.currentTimeMillis());
+        String fileName = FILE_DIR + File.separator + "note_" + currentTimeYmd + ".txt";
 
         try {
-            String currentTimeYmd = CalendarUtil.getFormatYmd(System.currentTimeMillis());
-            String currentTimeMdhm = CalendarUtil.getFormatMdhm(System.currentTimeMillis());
-            String fileName = FILE_DIR + File.separator + "note_" + currentTimeYmd + ".txt";
             fileWriter = new FileWriter(fileName);
             NoteDao noteDao = NoteDaoImpl.getInstance();
             int[] count = noteDao.getCount();
@@ -298,6 +298,7 @@ public class XmlUtil {
             }
         }
 
+        return fileName;
     }
 
     public static boolean isExternalStorageWritable() {
