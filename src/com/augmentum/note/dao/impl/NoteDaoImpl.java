@@ -84,6 +84,9 @@ public class NoteDaoImpl implements NoteDao {
                         values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
                     }
 
+                    values.put(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, note.getEnterDesktopFlag());
+                    values.put(Note.NoteEntry.COLUMN_NAME_widget_ID, note.getWidgetId());
+
                     mDatabase.insertOrThrow(Note.NoteEntry.TABLE_NAME, null, values);
                 }
 
@@ -115,6 +118,9 @@ public class NoteDaoImpl implements NoteDao {
         } else {
             values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
         }
+
+        values.put(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, note.getEnterDesktopFlag());
+        values.put(Note.NoteEntry.COLUMN_NAME_widget_ID, note.getWidgetId());
 
         String selection = Note.NoteEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(note.getId())};
@@ -526,6 +532,68 @@ public class NoteDaoImpl implements NoteDao {
 
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
+        }
+
+        return result;
+    }
+
+    @Override
+    public Note getById(long id) {
+        Note result = null;
+        String[] projection = {
+                Note.NoteEntry._ID,
+                Note.NoteEntry.COLUMN_NAME_TYPE,
+                Note.NoteEntry.COLUMN_NAME_PARENT_ID,
+                Note.NoteEntry.COLUMN_NAME_COLOR,
+                Note.NoteEntry.COLUMN_NAME_CONTENT,
+                Note.NoteEntry.COLUMN_NAME_SUBJECT,
+                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
+                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
+                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
+        };
+
+        String selection = Note.NoteEntry._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(id)};
+        Cursor cursor = null;
+
+        if (mDatabase != null) cursor = mDatabase.query(
+                Note.NoteEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+
+
+        if (cursor != null && cursor.moveToFirst()) {
+            result = new Note();
+            result.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
+            result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
+            result.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
+            result.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
+
+            if (Note.TYPE_NOTE == result.getType()) {
+                result.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
+                result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
+                result.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
+                result.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
+                result.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
+            }
+
+            if (Note.TYPE_FOLDER == result.getType()) {
+                String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
+                result.setSubject(subject);
+                result.setChildCount(getChildCount(result));
+                result.setModifyTime(getChildrenModifyTime(result));
+            }
+
+        }
+
+        if (cursor != null) {
+            cursor.close();
         }
 
         return result;

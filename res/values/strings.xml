@@ -4,6 +4,11 @@
         <item>至SD卡</item>
         <item>至邮箱</item>
     </string-array>
+    <string-array name="note_edit_share">
+        <item>短信</item>
+        <item>邮件</item>
+        <item>新浪微博</item>
+    </string-array>
     <string name="app_name">XM Notes</string>
     <string name="app_widget2x2">XM Notes 2x2</string>
     <string name="app_widget4x4">XM Notes 4x4</string>

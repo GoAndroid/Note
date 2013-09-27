@@ -68,7 +68,18 @@ public interface NoteDao {
      * Restore notes from a list of note
      * @param notes restore list.
      */
-    void insertALL(List<Note> notes);
+    public void insertALL(List<Note> notes);
 
-    int[] getCount();
+    /**
+     * Get the count of folder and note.
+     * @return int[0] is folder count, int[1] is note count;
+     */
+    public int[] getCount();
+
+    /**
+     * Get the object from database from id.
+     * @param id the id of note object.
+     * @return <code>Note</code> object
+     */
+    public Note getById(long id);
 }

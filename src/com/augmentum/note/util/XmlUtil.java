@@ -136,7 +136,9 @@ public class XmlUtil {
             return;
         }
 
-        makedir();
+        if (makeDir()) {
+            return;
+        };
 
         NoteDao noteDao = NoteDaoImpl.getInstance();
         List<Note> notes = noteDao.getAll();
@@ -217,17 +219,14 @@ public class XmlUtil {
 
     }
 
-    private static void makedir() {
+    private static boolean makeDir() {
         File file = new File(FILE_DIR);
 
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-
+        return file.exists() || file.mkdirs();
     }
 
-    public static String exportTotxt() {
-        makedir();
+    public static String exportToTxt() {
+        makeDir();
         FileWriter fileWriter = null;
         String currentTimeYmd = CalendarUtil.getFormatYmd(System.currentTimeMillis());
         String currentTimeMdhm = CalendarUtil.getFormatMdhm(System.currentTimeMillis());

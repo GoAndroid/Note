@@ -12,21 +12,28 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.augmentum.note.NoteApplication;
 import com.augmentum.note.R;
 import com.augmentum.note.adapter.NoteAdapter;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.ConfirmDialogFragment;
-import com.augmentum.note.fragment.ExportDialogFragment;
-import com.augmentum.note.fragment.MoveDialogFragment;
+import com.augmentum.note.fragment.LoginDialogFragment;
+import com.augmentum.note.fragment.SelectDialogFragment;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
+import com.augmentum.note.util.Resource;
 import com.augmentum.note.util.XmlUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class NoteListActivity extends FragmentActivity {
+
+    public static final String TAG_XML = "exportXML";
+    public static final String TAG_TXT = "exportTXT";
+    public static final long NO_ID = -2l;
+    public static final String LOGIN_DIALOG_FRAGMENT = "loginDialogFragment";
 
     private LinearLayout mDeleteDialog;
     private LinearLayout mMoveDialog;
@@ -50,16 +57,6 @@ public class NoteListActivity extends FragmentActivity {
         mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
-
-        Intent intent = getIntent();
-        mParent = (Note) intent.getParcelableExtra(Note.PARENT_TAG);
-
-        if (null != mParent) {
-            mIsFolderState = true;
-            mHeaderTextView = (TextView) findViewById(R.id.note_list_title);
-            mHeaderTextView.setText(mParent.getSubject());
-        }
-
     }
 
     private void initView() {
@@ -111,6 +108,58 @@ public class NoteListActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
 
+        String password = getPreferences(MODE_PRIVATE).getString("password", null);
+
+        if (password != null && !NoteApplication.sIsLogin) {
+            LoginDialogFragment loginDialogFragment = new LoginDialogFragment();
+            loginDialogFragment.setOnClickListener(new LoginDialogFragment.OnClickListener() {
+                @Override
+                public void onClick() {
+                    if (NoteApplication.sIsLogin) {
+                        showData();
+                    }
+                }
+            });
+            loginDialogFragment.show(getSupportFragmentManager(), LOGIN_DIALOG_FRAGMENT);
+        } else {
+            showData();
+        }
+    }
+
+    private void showData() {
+        long id = getIntent().getLongExtra(Note.TAG, NO_ID);
+
+        if (NO_ID != id) {
+            Note note = mNoteDao.getById(id);
+
+            if (null != note) {
+                Intent intent = new Intent();
+
+                switch (note.getType()) {
+                    case Note.TYPE_FOLDER:
+                        intent.setClass(this, NoteListActivity.class);
+                        intent.putExtra(Note.PARENT_TAG, note);
+                        startActivity(intent);
+                        break;
+                    case Note.TYPE_NOTE:
+                        intent.setClass(this, NoteEditActivity.class);
+                        intent.putExtra(Note.NOTE_TAG, note);
+                        startActivity(intent);
+                        break;
+                }
+
+            }
+
+        }
+
+        mParent = getIntent().getParcelableExtra(Note.PARENT_TAG);
+
+        if (null != mParent) {
+            mIsFolderState = true;
+            mHeaderTextView = (TextView) findViewById(R.id.note_list_title);
+            mHeaderTextView.setText(mParent.getSubject());
+        }
+
         notifyListDatachange();
     }
 
@@ -156,27 +205,33 @@ public class NoteListActivity extends FragmentActivity {
                 startActivity(intent);
                 return true;
             case R.id.note_list_menu_backup_to_sd:
-                ExportDialogFragment exportSdDialogFragment = new ExportDialogFragment();
-                exportSdDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
+                SelectDialogFragment exportXmlDialogFragment = new SelectDialogFragment();
+                String[] exportXmlItems = Resource.getStringArray(R.array.note_list_export);
+                exportXmlDialogFragment.setItems(exportXmlItems);
+                exportXmlDialogFragment.setListener(new SelectDialogFragment.OnSelectListener() {
                     @Override
                     public void onItemClick(final int which) {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                exportToSd();
+                                exportXML();
 
-                                if (1 == which) {
-                                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                                    emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + XmlUtil.FILE_NAME));
-                                    emailIntent.setType("plain/text");
-                                    startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                switch (which) {
+                                    case 0:
+                                        break;
+                                    case 1:
+                                        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                                        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + XmlUtil.FILE_NAME));
+                                        emailIntent.setType("plain/text");
+                                        startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                        break;
                                 }
 
                             }
                         }).start();
                     }
                 });
-                exportSdDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_SD);
+                exportXmlDialogFragment.show(getSupportFragmentManager(), TAG_XML);
                 return true;
             case R.id.note_list_menu_delete:
                 mNoteAdapter.setDeleteState(true);
@@ -184,27 +239,34 @@ public class NoteListActivity extends FragmentActivity {
                 mDeleteDialog.setVisibility(View.VISIBLE);
                 return true;
             case R.id.note_list_menu_export_txt_file:
-                ExportDialogFragment exportTxtDialogFragment = new ExportDialogFragment();
-                exportTxtDialogFragment.setListener(new ExportDialogFragment.OnExportListener() {
+                SelectDialogFragment exportTxtDialogFragment = new SelectDialogFragment();
+                String[] exportTxtItems = Resource.getStringArray(R.array.note_list_export);
+                exportTxtDialogFragment.setItems(exportTxtItems);
+                exportTxtDialogFragment.setListener(new SelectDialogFragment.OnSelectListener() {
                     @Override
                     public void onItemClick(final int which) {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                String fileName = XmlUtil.exportTotxt();
+                                String fileName = XmlUtil.exportToTxt();
 
-                                if (1 == which) {
-                                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                                    emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + fileName));
-                                    emailIntent.setType("plain/text");
-                                    startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                switch (which) {
+                                    case 0:
+                                        break;
+                                    case 1:
+                                        Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                                        emailIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + fileName));
+                                        emailIntent.setType("plain/text");
+                                        startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                        break;
                                 }
+
                             }
                         }).start();
 
                     }
                 });
-                exportTxtDialogFragment.show(getSupportFragmentManager(), ExportDialogFragment.TAG_TXT);
+                exportTxtDialogFragment.show(getSupportFragmentManager(), TAG_TXT);
                 return true;
             case R.id.note_list_menu_get_more:
                 return true;
@@ -227,7 +289,7 @@ public class NoteListActivity extends FragmentActivity {
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
-                                restoreFromSd();
+                                restoreFromXml();
                                 initList();
                                 runOnUiThread(new Runnable() {
                                     @Override
@@ -267,12 +329,16 @@ public class NoteListActivity extends FragmentActivity {
                 return true;
             case R.id.note_folder_menu_add_shortcut:
                 Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+                // add short cut name
                 shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mParent.getSubject());
+                // add icon
                 Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_group);
                 shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
+                // add callback activity
                 Intent callIntent = new Intent(this, NoteListActivity.class);
-                callIntent.putExtra(Note.PARENT_TAG, mParent);
+                callIntent.putExtra(Note.TAG, mParent.getId());
                 shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, callIntent);
+                // send intent
                 sendBroadcast(shortcutIntent);
                 return true;
             default:
@@ -335,14 +401,22 @@ public class NoteListActivity extends FragmentActivity {
     public void onMoveOk(View view) {
 
         if (!mIsFolderState) {
-            MoveDialogFragment moveDialogFragment = new MoveDialogFragment();
-            moveDialogFragment.setListener(new MoveDialogFragment.OnMoveListener() {
+            SelectDialogFragment moveDialogFragment = new SelectDialogFragment();
+            final List<Note> folders = mNoteDao.getFolders();
+            String[] items = new String[folders.size()];
+
+            for (int i = 0; i < folders.size(); i++) {
+                items[i] = folders.get(i).getSubject();
+            }
+
+            moveDialogFragment.setItems(items);
+            moveDialogFragment.setListener(new SelectDialogFragment.OnSelectListener() {
 
                 @Override
-                public void onItemClick(long id) {
+                public void onItemClick(int which) {
 
                     for (Note note : mNoteAdapter.getEditSet()) {
-                        note.setParentId(id);
+                        note.setParentId(folders.get(which).getId());
                         mNoteDao.update(note);
                     }
 
@@ -353,7 +427,7 @@ public class NoteListActivity extends FragmentActivity {
                 }
             });
 
-            moveDialogFragment.show(getSupportFragmentManager(), MoveDialogFragment.TAG);
+            moveDialogFragment.show(getSupportFragmentManager(), SelectDialogFragment.TAG);
         } else {
 
             for (Note note : mNoteAdapter.getEditSet()) {
@@ -413,11 +487,11 @@ public class NoteListActivity extends FragmentActivity {
 
     }
 
-    private void exportToSd() {
+    private void exportXML() {
         XmlUtil.serialize();
     }
 
-    private void restoreFromSd() {
+    private void restoreFromXml() {
         List<Note> notes = XmlUtil.deserialize();
         mNoteDao.deleteAll();
 
@@ -426,4 +500,5 @@ public class NoteListActivity extends FragmentActivity {
         }
 
     }
+
 }

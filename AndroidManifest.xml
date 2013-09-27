@@ -24,11 +24,7 @@
         </activity>
         <activity android:name=".activity.NoteAboutActivity"/>
         <activity android:configChanges="keyboardHidden|orientation|screenSize"
-                android:name=".activity.NoteEditActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT" />
-            </intent-filter>
-        </activity>
+                android:name=".activity.NoteEditActivity"/>
         <activity android:name=".activity.AlarmActivity" android:theme="@android:style/Theme"/>
         <receiver android:name=".receiver.AlarmReceiver" android:process=":remote">
             <intent-filter>

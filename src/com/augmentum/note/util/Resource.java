@@ -15,6 +15,10 @@ public class Resource {
         return getResource().getString(restId, formatArgs);
     }
 
+    public static String[] getStringArray(int resId) {
+        return getResource().getStringArray(resId);
+    }
+
     public static Drawable getDrawable(int resId) {
         return getResource().getDrawable(resId);
     }

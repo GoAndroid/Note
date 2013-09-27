@@ -6,6 +6,7 @@ import com.augmentum.note.database.NoteDbHelper;
 public class NoteApplication extends Application {
 
     private static NoteApplication sInstance;
+    public static boolean sIsLogin;
 
     private NoteDbHelper mDbHelper;
 

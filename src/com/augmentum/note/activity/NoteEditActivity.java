@@ -22,6 +22,7 @@ import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.AlertTimeDialogFragment;
 import com.augmentum.note.fragment.ConfirmDialogFragment;
+import com.augmentum.note.fragment.SelectDialogFragment;
 import com.augmentum.note.model.Note;
 import com.augmentum.note.receiver.AlarmReceiver;
 import com.augmentum.note.util.CalendarUtil;
@@ -30,6 +31,8 @@ import com.augmentum.note.util.Resource;
 import java.util.Calendar;
 
 public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
+
+    public static final String SHARE_DIALOG_FRAGMENT = "shareDialogFragment";
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
@@ -72,8 +75,15 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
 
         Intent intent = getIntent();
-        mParent = (Note) intent.getParcelableExtra(Note.PARENT_TAG);
-        mNote = (Note) intent.getParcelableExtra(Note.NOTE_TAG);
+        mParent = intent.getParcelableExtra(Note.PARENT_TAG);
+        mNote = intent.getParcelableExtra(Note.NOTE_TAG);
+
+        if (null == mNote) {
+            String json = intent.getStringExtra(Note.NOTE_TAG);
+            if (json != null) {
+                mNote = Note.getFromJSON(json);
+            }
+        }
 
         if (null == mNote) {
             mNote = new Note();
@@ -138,10 +148,10 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 if (0 < mNote.getId()) {
                     Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
                     shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mNote.getContent());
-                    Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_group);
+                    Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_one);
                     shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
-                    Intent callIntent = new Intent(this, NoteEditActivity.class);
-                    // callIntent.putExtra(Note.PARENT_TAG, mNote);
+                    Intent callIntent = new Intent(this, NoteListActivity.class);
+                    callIntent.putExtra(Note.TAG, mNote.getId());
                     shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, callIntent);
                     sendBroadcast(shortcutIntent);
                 }
@@ -189,6 +199,35 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 alertDialog.show(getSupportFragmentManager(), AlertTimeDialogFragment.TAG);
                 return true;
             case R.id.note_edit_menu_share:
+                SelectDialogFragment selectDialogFragment = new SelectDialogFragment();
+                String[] items = Resource.getStringArray(R.array.note_edit_share);
+                selectDialogFragment.setItems(items);
+                selectDialogFragment.setListener(new SelectDialogFragment.OnSelectListener() {
+                    @Override
+                    public void onItemClick(int which) {
+
+                        if (null == mEditText.getText() || "".equals(mEditText.getText().toString())) {
+                            return;
+                        }
+
+                        switch (which) {
+                            case 0:
+                                Intent smsIntent = new Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:"));
+                                smsIntent.putExtra("sms_body", mNote.getContent());
+                                startActivity(smsIntent);
+                                break;
+                            case 1:
+                                Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                                emailIntent.putExtra(Intent.EXTRA_TEXT, mNote.getContent());
+                                emailIntent.setType("plain/text");
+                                startActivity(Intent.createChooser(emailIntent, "Your email client"));
+                                break;
+                            case 2:
+                                break;
+                        }
+                    }
+                });
+                selectDialogFragment.show(getSupportFragmentManager(), SHARE_DIALOG_FRAGMENT);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -413,20 +452,4 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         alarmManager.cancel(alarmPendingIntent);
     }
 
-    @Override
-    public void onBackPressed() {
-
-        if (!getSupportFragmentManager().popBackStackImmediate()) {
-            Intent intent = new Intent();
-            intent.setClass(this, NoteListActivity.class);
-            startActivity(intent);
-        }
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        finish();
-    }
 }
