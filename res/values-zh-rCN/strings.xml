@@ -9,6 +9,10 @@
         <item>邮件</item>
         <item>新浪微博</item>
     </string-array>
+    <string-array name="note_list_change_password">
+        <item>修改密码</item>
+        <item>清除密码</item>
+    </string-array>
     <string name="app_name">小米便签</string>
     <string name="app_widget2x2">小米便签2x2</string>
     <string name="app_widget4x4">小米便签4x4</string>

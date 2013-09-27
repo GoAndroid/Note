@@ -2,6 +2,7 @@ package com.augmentum.note.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -34,6 +35,7 @@ public class NoteListActivity extends FragmentActivity {
     public static final String TAG_TXT = "exportTXT";
     public static final long NO_ID = -2l;
     public static final String LOGIN_DIALOG_FRAGMENT = "loginDialogFragment";
+    public static final String CHANGE_PASSWORD_ITEMS = "changePasswordItems";
 
     private LinearLayout mDeleteDialog;
     private LinearLayout mMoveDialog;
@@ -304,8 +306,34 @@ public class NoteListActivity extends FragmentActivity {
                 confirmDialogFragment.show(getSupportFragmentManager(), "confirm_restore");
                 return true;
             case R.id.note_list_menu_set_password:
-                DialogFragment dialog = new SetPasswordDialogFragment();
-                dialog.show(getSupportFragmentManager(), SetPasswordDialogFragment.TAG);
+                SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                String password = sharedPref.getString(Note.TAG, null);
+                if (null != password) {
+                    DialogFragment dialog = new SetPasswordDialogFragment();
+                    dialog.show(getSupportFragmentManager(), SetPasswordDialogFragment.TAG);
+                } else {
+                    SelectDialogFragment selectDialogFragment = new SelectDialogFragment();
+                    String[] changePasswordItems = Resource.getStringArray(R.array.note_list_change_password);
+                    selectDialogFragment.setItems(changePasswordItems);
+                    selectDialogFragment.setListener(new SelectDialogFragment.OnSelectListener() {
+                        @Override
+                        public void onItemClick(int which) {
+                            switch (which) {
+                                case 0:
+                                    DialogFragment dialog = new SetPasswordDialogFragment();
+                                    dialog.show(getSupportFragmentManager(), SetPasswordDialogFragment.TAG);
+                                    break;
+                                case 1:
+                                    SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPref.edit();
+                                    editor.putString("password", null);
+                                    editor.commit();
+                                    break;
+                            }
+                        }
+                    });
+                    selectDialogFragment.show(getSupportFragmentManager(), CHANGE_PASSWORD_ITEMS);
+                }
                 return true;
             case R.id.note_folder_menu_new_note:
                 intent.setClass(NoteListActivity.this, NoteEditActivity.class);
