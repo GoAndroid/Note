@@ -30,7 +30,8 @@ public class SetPasswordDialogFragment extends DialogFragment {
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
 
-                if (password.getText().toString().equals(confirm.getText().toString()))  {
+                if (null != password.getText() && null != confirm.getText()
+                        && password.getText().toString().equals(confirm.getText().toString())) {
                     SharedPreferences sharePref = getActivity().getPreferences(Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharePref.edit();
                     editor.putString("password", Md5Util.getMD5(password.getText().toString()));
@@ -44,9 +45,9 @@ public class SetPasswordDialogFragment extends DialogFragment {
             }
         });
 
-        builder .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                    DialogUtil.openDismiss(dialog);
+                DialogUtil.openDismiss(dialog);
             }
         });
 

@@ -39,7 +39,8 @@ public class LoginDialogFragment extends DialogFragment {
                 SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                 String password = sharedPref.getString("password", "no password");
 
-                if (password.equals(Md5Util.getMD5(editText.getText().toString()))) {
+                if (null != editText.getText() && "".equals(editText.getText().toString())
+                        && password.equals(Md5Util.getMD5(editText.getText().toString()))) {
                     NoteApplication.sIsLogin = true;
                     DialogUtil.openDismiss(dialog);
                     dismiss();
