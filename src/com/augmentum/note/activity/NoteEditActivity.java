@@ -447,10 +447,10 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         int alarmType = AlarmManager.RTC_WAKEUP;
 
         long alarmTime = mNote.getAlertTime();
+        Calendar c = Calendar.getInstance();
 
         Intent alarmIntent = new Intent();
         alarmIntent.setAction(AlarmReceiver.ALARM_ACTION);
-        alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
         alarmManager.set(alarmType, alarmTime, alarmPendingIntent);
     }
