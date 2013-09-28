@@ -45,7 +45,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.augmentum.note.WIDGET_UPDATE" />
+                <action android:name="com.augmentum.note.WIDGET_UPDATE_2X2" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_2x2_info" />
         </receiver>
@@ -58,7 +58,7 @@
                 <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.augmentum.note.WIDGET_UPDATE" />
+                <action android:name="com.augmentum.note.WIDGET_UPDATE_4X4" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_4x4_info" />
         </receiver>

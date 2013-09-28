@@ -7,6 +7,7 @@ public class NoteApplication extends Application {
 
     private static NoteApplication sInstance;
     public static boolean sIsLogin;
+    public static String sWidgetType;
 
     private NoteDbHelper mDbHelper;
 

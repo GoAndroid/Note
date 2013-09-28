@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.augmentum.note.NoteApplication;
 import com.augmentum.note.R;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
@@ -29,6 +30,7 @@ import com.augmentum.note.receiver.AlarmReceiver;
 import com.augmentum.note.util.CalendarUtil;
 import com.augmentum.note.util.Resource;
 import com.augmentum.note.widget.NoteWidget2x2;
+import com.augmentum.note.widget.NoteWidget4x4;
 
 import java.util.Calendar;
 
@@ -63,6 +65,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         initView();
 
         appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+
     }
 
 
@@ -483,7 +486,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 createWidget();
                 updateWidget();
                 finish();
-            } else if ( 0 < mNote.getWidgetId()) {
+            } else if (0 < mNote.getWidgetId()) {
                 insertOrUpdateNote();
                 updateWidget();
             }
@@ -500,7 +503,14 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     }
 
     private void updateWidget() {
-        Intent intent = new Intent(NoteWidget2x2.WIDGET_UPDATE);
+        Intent intent = null;
+
+        if(NoteWidget2x2.TAG.equals(NoteApplication.sWidgetType)) {
+            intent = new Intent(NoteWidget2x2.WIDGET_UPDATE);
+        } else {
+            intent = new Intent(NoteWidget4x4.WIDGET_UPDATE);
+        }
+
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mNote.getWidgetId());
         sendBroadcast(intent);
     }
