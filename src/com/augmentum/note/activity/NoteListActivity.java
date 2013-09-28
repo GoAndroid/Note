@@ -132,6 +132,7 @@ public class NoteListActivity extends FragmentActivity {
             Note note = mNoteDao.getById(id);
 
             if (null != note) {
+                NoteApplication.sWidgetType = getIntent().getStringExtra("widget_type");
                 Intent intent = new Intent();
 
                 switch (note.getType()) {

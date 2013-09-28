@@ -75,6 +75,7 @@ public class NoteWidget2x2 extends AppWidgetProvider {
             views.setTextViewText(R.id.widget_text, note.getContent());
             Intent callbackIntent = new Intent(context, NoteListActivity.class);
             callbackIntent.putExtra(Note.TAG, note.getId());
+            callbackIntent.putExtra("widget_type", NoteWidget2x2.TAG);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, appWidgetId, callbackIntent, 0);
             views.setOnClickPendingIntent(R.id.widget_layout_main, pendingIntent);
             AppWidgetManager.getInstance(context).updateAppWidget(appWidgetId, views);
