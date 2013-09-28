@@ -23,6 +23,7 @@ import com.augmentum.note.fragment.LoginDialogFragment;
 import com.augmentum.note.fragment.SelectDialogFragment;
 import com.augmentum.note.fragment.SetPasswordDialogFragment;
 import com.augmentum.note.model.Note;
+import com.augmentum.note.util.Md5Util;
 import com.augmentum.note.util.Resource;
 import com.augmentum.note.util.XmlUtil;
 
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NoteListActivity extends FragmentActivity {
-
+    public static final String TAG = "NoteListActivity";
     public static final String TAG_XML = "exportXML";
     public static final String TAG_TXT = "exportTXT";
     public static final long NO_ID = -2l;
@@ -59,6 +60,24 @@ public class NoteListActivity extends FragmentActivity {
         mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
+
+        String password = getPreferences(MODE_PRIVATE).getString("password", null);
+
+        if (null != password && !NoteApplication.sIsLogin) {
+            LoginDialogFragment loginDialogFragment = new LoginDialogFragment();
+            loginDialogFragment.setOnClickListener(new LoginDialogFragment.OnClickListener() {
+                @Override
+                public void onClick() {
+                    if (NoteApplication.sIsLogin) {
+                        parseIntent();
+                        notifyListDatachange();
+                    }
+                }
+            });
+            loginDialogFragment.show(getSupportFragmentManager(), LOGIN_DIALOG_FRAGMENT);
+        } else {
+            parseIntent();
+        }
     }
 
     private void initView() {
@@ -106,29 +125,7 @@ public class NoteListActivity extends FragmentActivity {
         });
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        String password = getPreferences(MODE_PRIVATE).getString("password", null);
-
-        if (password != null && !NoteApplication.sIsLogin) {
-            LoginDialogFragment loginDialogFragment = new LoginDialogFragment();
-            loginDialogFragment.setOnClickListener(new LoginDialogFragment.OnClickListener() {
-                @Override
-                public void onClick() {
-                    if (NoteApplication.sIsLogin) {
-                        showData();
-                    }
-                }
-            });
-            loginDialogFragment.show(getSupportFragmentManager(), LOGIN_DIALOG_FRAGMENT);
-        } else {
-            showData();
-        }
-    }
-
-    private void showData() {
+    private void parseIntent() {
         long id = getIntent().getLongExtra(Note.TAG, NO_ID);
 
         if (NO_ID != id) {
@@ -162,7 +159,16 @@ public class NoteListActivity extends FragmentActivity {
             mHeaderTextView.setText(mParent.getSubject());
         }
 
-        notifyListDatachange();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String password = getPreferences(MODE_PRIVATE).getString("password", null);
+
+        if (password == null || NoteApplication.sIsLogin) {
+            notifyListDatachange();
+        }
     }
 
     private void notifyListDatachange() {
@@ -307,8 +313,8 @@ public class NoteListActivity extends FragmentActivity {
                 return true;
             case R.id.note_list_menu_set_password:
                 SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
-                String password = sharedPref.getString(Note.TAG, null);
-                if (null != password) {
+                String password = sharedPref.getString(Md5Util.PASSWORD, null);
+                if (null == password) {
                     DialogFragment dialog = new SetPasswordDialogFragment();
                     dialog.show(getSupportFragmentManager(), SetPasswordDialogFragment.TAG);
                 } else {
@@ -326,7 +332,7 @@ public class NoteListActivity extends FragmentActivity {
                                 case 1:
                                     SharedPreferences sharedPref = getPreferences(MODE_PRIVATE);
                                     SharedPreferences.Editor editor = sharedPref.edit();
-                                    editor.putString("password", null);
+                                    editor.putString(Md5Util.PASSWORD, null);
                                     editor.commit();
                                     break;
                             }
@@ -359,6 +365,8 @@ public class NoteListActivity extends FragmentActivity {
                 Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
                 // add short cut name
                 shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mParent.getSubject());
+                // set duplicate false
+                shortcutIntent.putExtra("duplicate", false);
                 // add icon
                 Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_group);
                 shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);

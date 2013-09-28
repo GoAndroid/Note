@@ -2,6 +2,7 @@ package com.augmentum.note.activity;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,12 +28,14 @@ import com.augmentum.note.model.Note;
 import com.augmentum.note.receiver.AlarmReceiver;
 import com.augmentum.note.util.CalendarUtil;
 import com.augmentum.note.util.Resource;
+import com.augmentum.note.widget.NoteWidget2x2;
 
 import java.util.Calendar;
 
 public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
 
     public static final String SHARE_DIALOG_FRAGMENT = "shareDialogFragment";
+    public static final String TAG = "NoteEditActivity";
 
     private RadioGroup mChangeColorRadioGroup;
     private LinearLayout mChangeFontDialog;
@@ -44,6 +47,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private ImageView mAlertImage;
     private NoteDao mNoteDao;
     private Note mParent;
+    private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     boolean hasAlarm;
 
@@ -57,7 +61,10 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mNoteDao = NoteDaoImpl.getInstance();
 
         initView();
+
+        appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
     }
+
 
     /**
      * get the instance of the view elements. and get the mNote from the intent, change the
@@ -148,6 +155,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                 if (0 < mNote.getId()) {
                     Intent shortcutIntent = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
                     shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, mNote.getContent());
+                    shortcutIntent.putExtra("duplicate", false);
                     Parcelable icon = Intent.ShortcutIconResource.fromContext(this, R.drawable.icon_one);
                     shortcutIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, icon);
                     Intent callIntent = new Intent(this, NoteListActivity.class);
@@ -243,6 +251,18 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
             return;
         }
 
+        insertOrUpdateNote();
+
+        if (hasAlarm) {
+            Log.v("NoteEditActivity", "alertTime" + mNote.getAlertTime());
+            Log.v("NoteEditActivity", "currentTime" + System.currentTimeMillis());
+            initAlarm();
+        } else {
+            cancelAlarm();
+        }
+    }
+
+    private void insertOrUpdateNote() {
         mNote.setContent(mEditText.getText().toString());
         mNote.setModifyTime(System.currentTimeMillis());
 
@@ -255,14 +275,6 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         } else {
             long id = mNoteDao.insert(mNote);
             mNote.setId(id);
-        }
-
-        if (hasAlarm) {
-            Log.v("NoteEditActivity", "alertTime" + mNote.getAlertTime());
-            Log.v("NoteEditActivity", "currentTime" + System.currentTimeMillis());
-            initAlarm();
-        } else {
-            cancelAlarm();
         }
     }
 
@@ -450,6 +462,47 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
         PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
         alarmManager.cancel(alarmPendingIntent);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+
+        if (null != mEditText.getText() && !"".equals(mEditText.getText().toString())) {
+
+            if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+                mNote.setWidgetId(appWidgetId);
+                insertOrUpdateNote();
+                Log.v(TAG, "widgetId: " + mNote.getWidgetId());
+                Log.v(TAG, "id" + mNote.getId());
+                createWidget();
+                updateWidget();
+                finish();
+            } else if ( 0 < mNote.getWidgetId()) {
+                insertOrUpdateNote();
+                updateWidget();
+            }
+
+        }
+
+        super.onBackPressed();
+    }
+
+    private void createWidget() {
+        Intent createIntent = new Intent();
+        createIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        setResult(RESULT_OK, createIntent);
+    }
+
+    private void updateWidget() {
+        Intent intent = new Intent(NoteWidget2x2.WIDGET_UPDATE);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mNote.getWidgetId());
+        sendBroadcast(intent);
     }
 
 }

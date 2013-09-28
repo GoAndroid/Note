@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Md5Util {
 
+    public static final String PASSWORD = "password";
     private static MessageDigest md = null;
 
     /* MD5 method */

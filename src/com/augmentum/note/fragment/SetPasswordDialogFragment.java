@@ -34,7 +34,7 @@ public class SetPasswordDialogFragment extends DialogFragment {
                         && password.getText().toString().equals(confirm.getText().toString())) {
                     SharedPreferences sharePref = getActivity().getPreferences(Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sharePref.edit();
-                    editor.putString("password", Md5Util.getMD5(password.getText().toString()));
+                    editor.putString(Md5Util.PASSWORD, Md5Util.getMD5(password.getText().toString()));
                     editor.commit();
                     DialogUtil.openDismiss(dialog);
                     dismiss();

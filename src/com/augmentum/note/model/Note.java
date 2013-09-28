@@ -233,7 +233,7 @@ public class Note implements Parcelable {
             }
 
             noteJSON.put(NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, mEnterDesktopFlag);
-            noteJSON.put(NoteEntry.COLUMN_NAME_widget_ID, mWidgetId);
+            noteJSON.put(NoteEntry.COLUMN_NAME_WIDGET_ID, mWidgetId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -261,7 +261,7 @@ public class Note implements Parcelable {
                 result.setSubject(noteJSON.getString(NoteEntry.COLUMN_NAME_SUBJECT));
             }
 
-            result.setWidgetId(noteJSON.getInt(NoteEntry.COLUMN_NAME_widget_ID));
+            result.setWidgetId(noteJSON.getInt(NoteEntry.COLUMN_NAME_WIDGET_ID));
             result.setEnterDesktopFlag(noteJSON.getInt(NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -276,7 +276,7 @@ public class Note implements Parcelable {
         public static final String COLUMN_NAME_TYPE = "type";
         public static final String COLUMN_NAME_COLOR = "color";
         public static final String COLUMN_NAME_PARENT_ID = "parent_id";
-        public static final String COLUMN_NAME_widget_ID = "widget_id";
+        public static final String COLUMN_NAME_WIDGET_ID = "widget_id";
         public static final String COLUMN_NAME_ENTER_DESKTOP_FLAG = "enter_desktop_flag";
         public static final String COLUMN_NAME_CREATE_TIME = "create_time";
         public static final String COLUMN_NAME_MODIFY_TIME = "modify_time";

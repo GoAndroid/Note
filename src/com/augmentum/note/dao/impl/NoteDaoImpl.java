@@ -48,6 +48,9 @@ public class NoteDaoImpl implements NoteDao {
             values.put(Note.NoteEntry.COLUMN_NAME_SUBJECT, note.getSubject());
         }
 
+        values.put(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, note.getEnterDesktopFlag());
+        values.put(Note.NoteEntry.COLUMN_NAME_WIDGET_ID, note.getWidgetId());
+
         if (mDatabase != null) {
             result = mDatabase.insert(Note.NoteEntry.TABLE_NAME, null, values);
         }
@@ -85,7 +88,7 @@ public class NoteDaoImpl implements NoteDao {
                     }
 
                     values.put(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, note.getEnterDesktopFlag());
-                    values.put(Note.NoteEntry.COLUMN_NAME_widget_ID, note.getWidgetId());
+                    values.put(Note.NoteEntry.COLUMN_NAME_WIDGET_ID, note.getWidgetId());
 
                     mDatabase.insertOrThrow(Note.NoteEntry.TABLE_NAME, null, values);
                 }
@@ -120,7 +123,7 @@ public class NoteDaoImpl implements NoteDao {
         }
 
         values.put(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG, note.getEnterDesktopFlag());
-        values.put(Note.NoteEntry.COLUMN_NAME_widget_ID, note.getWidgetId());
+        values.put(Note.NoteEntry.COLUMN_NAME_WIDGET_ID, note.getWidgetId());
 
         String selection = Note.NoteEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(note.getId())};
@@ -171,19 +174,9 @@ public class NoteDaoImpl implements NoteDao {
      */
     @Override
     public List<Note> getAllNoParent() {
-        List<Note> list = new ArrayList<Note>();
+        List<Note> result = new ArrayList<Note>();
 
-        String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_TYPE,
-                Note.NoteEntry.COLUMN_NAME_PARENT_ID,
-                Note.NoteEntry.COLUMN_NAME_COLOR,
-                Note.NoteEntry.COLUMN_NAME_CONTENT,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT,
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
-                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
-        };
+        String[] projection = createProjection();
 
         String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID +
                 " = " + Note.NO_PARENT;
@@ -226,14 +219,16 @@ public class NoteDaoImpl implements NoteDao {
                 note.setModifyTime(getChildrenModifyTime(note));
             }
 
-            list.add(note);
+            note.setEnterDesktopFlag(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG)));
+            note.setWidgetId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_WIDGET_ID)));
+            result.add(note);
         }
 
         if (cursor != null) {
             cursor.close();
         }
 
-        return list;
+        return result;
     }
 
     /**
@@ -244,19 +239,9 @@ public class NoteDaoImpl implements NoteDao {
      */
     @Override
     public List<Note> getChildren(Note parent) {
-        List<Note> list = new ArrayList<Note>();
+        List<Note> result = new ArrayList<Note>();
 
-        String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_TYPE,
-                Note.NoteEntry.COLUMN_NAME_PARENT_ID,
-                Note.NoteEntry.COLUMN_NAME_COLOR,
-                Note.NoteEntry.COLUMN_NAME_CONTENT,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT,
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
-                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
-        };
+        String[] projection = createProjection();
         String selection = Note.NoteEntry.COLUMN_NAME_PARENT_ID + " = ?";
         String[] selectionArgs = {String.valueOf(parent.getId())};
         String sortOrder = Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + " DESC";
@@ -288,14 +273,16 @@ public class NoteDaoImpl implements NoteDao {
             noteTemp.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
             noteTemp.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
             noteTemp.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
-            list.add(noteTemp);
+            noteTemp.setEnterDesktopFlag(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG)));
+            noteTemp.setWidgetId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_WIDGET_ID)));
+            result.add(noteTemp);
         }
 
         if (cursor != null) {
             cursor.close();
         }
 
-        return list;
+        return result;
     }
 
     /**
@@ -309,7 +296,8 @@ public class NoteDaoImpl implements NoteDao {
 
         String[] projection = {
                 Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT
+                Note.NoteEntry.COLUMN_NAME_SUBJECT,
+                Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG
         };
 
         String selection = Note.NoteEntry.COLUMN_NAME_TYPE + " = ?";
@@ -335,6 +323,7 @@ public class NoteDaoImpl implements NoteDao {
             note = new Note();
             note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
             note.setSubject(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT)));
+            note.setEnterDesktopFlag(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG)));
             result.add(note);
         }
 
@@ -347,19 +336,9 @@ public class NoteDaoImpl implements NoteDao {
 
     @Override
     public List<Note> getAll() {
-        List<Note> list = new ArrayList<Note>();
+        List<Note> result = new ArrayList<Note>();
 
-        String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_TYPE,
-                Note.NoteEntry.COLUMN_NAME_PARENT_ID,
-                Note.NoteEntry.COLUMN_NAME_COLOR,
-                Note.NoteEntry.COLUMN_NAME_CONTENT,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT,
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
-                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
-        };
+        String[] projection = createProjection();
 
         Cursor cursor = null;
 
@@ -373,38 +352,19 @@ public class NoteDaoImpl implements NoteDao {
                 null
         );
 
-        Note note;
+        Note noteTemp;
 
         while (cursor != null && cursor.moveToNext()) {
-            note = new Note();
-            note.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
-            note.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
-            note.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
-            note.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
+            noteTemp = createNoteFromeCursor(cursor);
 
-            if (Note.TYPE_NOTE == note.getType()) {
-                note.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
-                note.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
-                note.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
-                note.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
-                note.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
-            }
-
-            if (Note.TYPE_FOLDER == note.getType()) {
-                String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
-                note.setSubject(subject);
-                note.setChildCount(getChildCount(note));
-                note.setModifyTime(getChildrenModifyTime(note));
-            }
-
-            list.add(note);
+            result.add(noteTemp);
         }
 
         if (cursor != null) {
             cursor.close();
         }
 
-        return list;
+        return result;
     }
 
     /**
@@ -540,17 +500,7 @@ public class NoteDaoImpl implements NoteDao {
     @Override
     public Note getById(long id) {
         Note result = null;
-        String[] projection = {
-                Note.NoteEntry._ID,
-                Note.NoteEntry.COLUMN_NAME_TYPE,
-                Note.NoteEntry.COLUMN_NAME_PARENT_ID,
-                Note.NoteEntry.COLUMN_NAME_COLOR,
-                Note.NoteEntry.COLUMN_NAME_CONTENT,
-                Note.NoteEntry.COLUMN_NAME_SUBJECT,
-                Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
-                Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
-                Note.NoteEntry.COLUMN_NAME_ALERT_TIME
-        };
+        String[] projection = createProjection();
 
         String selection = Note.NoteEntry._ID + " = ?";
         String[] selectionArgs = {String.valueOf(id)};
@@ -569,26 +519,7 @@ public class NoteDaoImpl implements NoteDao {
 
 
         if (cursor != null && cursor.moveToFirst()) {
-            result = new Note();
-            result.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
-            result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
-            result.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
-            result.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
-
-            if (Note.TYPE_NOTE == result.getType()) {
-                result.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
-                result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
-                result.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
-                result.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
-                result.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
-            }
-
-            if (Note.TYPE_FOLDER == result.getType()) {
-                String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
-                result.setSubject(subject);
-                result.setChildCount(getChildCount(result));
-                result.setModifyTime(getChildrenModifyTime(result));
-            }
+            result = createNoteFromeCursor(cursor);
 
         }
 
@@ -597,5 +528,79 @@ public class NoteDaoImpl implements NoteDao {
         }
 
         return result;
+    }
+
+    public Note getByWidgetId(int widgetId) {
+        Note result = null;
+        String[] projection = createProjection();
+
+        String selection = Note.NoteEntry.COLUMN_NAME_WIDGET_ID + " = ?";
+        String[] selectionArgs = {String.valueOf(widgetId)};
+        Cursor cursor = null;
+
+        if (mDatabase != null) cursor = mDatabase.query(
+                Note.NoteEntry.TABLE_NAME,
+                projection,
+                selection,
+                selectionArgs,
+                null,
+                null,
+                null
+        );
+
+        if (cursor != null && cursor.moveToFirst()) {
+            result = createNoteFromeCursor(cursor);
+
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+        return result;
+    }
+
+    private Note createNoteFromeCursor(Cursor cursor) {
+        Note result;
+        result = new Note();
+        result.setId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry._ID)));
+        result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
+        result.setType(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_TYPE)));
+        result.setCreateTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CREATE_TIME)));
+
+        if (Note.TYPE_NOTE == result.getType()) {
+            result.setModifyTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_MODIFY_TIME)));
+            result.setParentId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_PARENT_ID)));
+            result.setColor(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_COLOR)));
+            result.setContent(cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_CONTENT)));
+            result.setAlertTime(cursor.getLong(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ALERT_TIME)));
+        }
+
+        if (Note.TYPE_FOLDER == result.getType()) {
+            String subject = cursor.getString(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_SUBJECT));
+            result.setSubject(subject);
+            result.setChildCount(getChildCount(result));
+            result.setModifyTime(getChildrenModifyTime(result));
+        }
+
+        result.setEnterDesktopFlag(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG)));
+        result.setWidgetId(cursor.getInt(cursor.getColumnIndex(Note.NoteEntry.COLUMN_NAME_WIDGET_ID)));
+        return result;
+    }
+
+    private String[] createProjection() {
+        return new String[]{
+                    Note.NoteEntry._ID,
+                    Note.NoteEntry.COLUMN_NAME_TYPE,
+                    Note.NoteEntry.COLUMN_NAME_PARENT_ID,
+                    Note.NoteEntry.COLUMN_NAME_COLOR,
+                    Note.NoteEntry.COLUMN_NAME_CONTENT,
+                    Note.NoteEntry.COLUMN_NAME_SUBJECT,
+                    Note.NoteEntry.COLUMN_NAME_MODIFY_TIME,
+                    Note.NoteEntry.COLUMN_NAME_CREATE_TIME,
+                    Note.NoteEntry.COLUMN_NAME_ALERT_TIME,
+                    Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG,
+                    Note.NoteEntry.COLUMN_NAME_WIDGET_ID
+            };
     }
 }

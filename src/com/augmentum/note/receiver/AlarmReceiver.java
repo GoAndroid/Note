@@ -13,8 +13,13 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+
         Log.e("AlarmReceiver", "intent");
-        intent.setClass(context, AlarmActivity.class);
-        context.startActivity(intent);
+
+        if (ALARM_ACTION.equals(intent.getAction())) {
+            intent.setClass(context, AlarmActivity.class);
+            context.startActivity(intent);
+        }
+
     }
 }

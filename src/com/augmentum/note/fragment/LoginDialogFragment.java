@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.InputType;
+import android.view.KeyEvent;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.augmentum.note.NoteApplication;
@@ -32,14 +34,16 @@ public class LoginDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setMessage(R.string.note_password_input_title);
         final EditText editText = new EditText(getActivity());
+        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         builder.setView(editText);
+
         builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
                 String password = sharedPref.getString("password", "no password");
 
-                if (null != editText.getText() && "".equals(editText.getText().toString())
+                if (null != editText.getText() && !"".equals(editText.getText().toString())
                         && password.equals(Md5Util.getMD5(editText.getText().toString()))) {
                     NoteApplication.sIsLogin = true;
                     DialogUtil.openDismiss(dialog);
@@ -56,7 +60,19 @@ public class LoginDialogFragment extends DialogFragment {
         });
 
         AlertDialog dialog = builder.create();
+
+        dialog.setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    getActivity().finish();
+                }
+                return false;
+            }
+        });
         dialog.setCanceledOnTouchOutside(false);
         return dialog;
     }
+
+
 }

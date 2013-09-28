@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_layout_main"
+    android:background="@drawable/widget_small_blue"
+    android:layout_width="146.0dip"
+    android:layout_height="146.0dip" >
+
+    <TextView
+        android:id="@+id/widget_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:lineSpacingMultiplier="1.2"
+        android:maxLines="6"
+        android:paddingLeft="15dip"
+        android:paddingRight="15dip"
+        android:paddingTop="20dip"
+        android:textColor="#ff663300"
+        android:textSize="14sp" />
+
+</LinearLayout>

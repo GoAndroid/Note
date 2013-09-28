@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.augmentum.note.activity.NoteEditActivity"
+    android:initialLayout="@layout/widget_44"
+    android:minHeight="294dp"
+    android:minWidth="294dp" />

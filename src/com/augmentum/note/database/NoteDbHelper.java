@@ -16,7 +16,7 @@ public class NoteDbHelper extends SQLiteOpenHelper {
                     Note.NoteEntry.COLUMN_NAME_TYPE + INTEGER_TYPE + COMMA_SEP +
                     Note.NoteEntry.COLUMN_NAME_COLOR + INTEGER_TYPE + COMMA_SEP +
                     Note.NoteEntry.COLUMN_NAME_PARENT_ID + INTEGER_TYPE + COMMA_SEP +
-                    Note.NoteEntry.COLUMN_NAME_widget_ID + INTEGER_TYPE + COMMA_SEP +
+                    Note.NoteEntry.COLUMN_NAME_WIDGET_ID + INTEGER_TYPE + COMMA_SEP +
                     Note.NoteEntry.COLUMN_NAME_ENTER_DESKTOP_FLAG + INTEGER_TYPE + COMMA_SEP +
                     Note.NoteEntry.COLUMN_NAME_CREATE_TIME + INTEGER_TYPE + COMMA_SEP +
                     Note.NoteEntry.COLUMN_NAME_MODIFY_TIME + INTEGER_TYPE + COMMA_SEP +

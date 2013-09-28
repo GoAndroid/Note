@@ -24,12 +24,43 @@
         </activity>
         <activity android:name=".activity.NoteAboutActivity"/>
         <activity android:configChanges="keyboardHidden|orientation|screenSize"
-                android:name=".activity.NoteEditActivity"/>
+                android:name=".activity.NoteEditActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".activity.AlarmActivity" android:theme="@android:style/Theme"/>
         <receiver android:name=".receiver.AlarmReceiver" android:process=":remote">
             <intent-filter>
                 <action android:name="com.augmentum.note.ALARM_ACTION"/>
+                <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+        </receiver>
+        <receiver android:name=".widget.NoteWidget2x2"
+                  android:label="@string/app_widget2x2">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.augmentum.note.WIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_2x2_info" />
+        </receiver>
+        <receiver android:name=".widget.NoteWidget4x4"
+                  android:label="@string/app_widget4x4">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="com.augmentum.note.WIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_4x4_info" />
         </receiver>
     </application>
 
