@@ -174,4 +174,8 @@ Xiaomi studio www.xiaomi.com"</string>
 
     <string name="sso">单点登录sso</string>
     <string name="auth">OAUTH2.0获取Token</string>
+
+
+    <string name="share_failed">Share failed!</string>
+    <string name="share_success">Share success!</string>
 </resources>

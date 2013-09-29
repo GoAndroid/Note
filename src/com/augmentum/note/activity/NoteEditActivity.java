@@ -45,6 +45,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -289,13 +291,19 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                                                 post.setEntity(new UrlEncodedFormEntity(parms, "utf-8"));
                                                 HttpResponse response = httpClient.execute(post);
                                                 Log.i(TAG, "resCode = " + response.getStatusLine().getStatusCode());
-                                                Log.i(TAG, "result = " + EntityUtils.toString(response.getEntity(), "utf-8"));
+                                                String json = EntityUtils.toString(response.getEntity(), "utf-8");
+                                                JSONObject jsonObject = new JSONObject(json);
+                                                jsonObject.getString("created_at");
+                                                Toast.makeText(NoteEditActivity.this, R.string.share_success, Toast.LENGTH_SHORT).show();
                                             } catch (UnsupportedEncodingException e) {
                                                 e.printStackTrace();
                                             } catch (ClientProtocolException e) {
                                                 e.printStackTrace();
                                             } catch (IOException e) {
                                                 e.printStackTrace();
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                                Toast.makeText(NoteEditActivity.this, R.string.share_failed, Toast.LENGTH_SHORT).show();
                                             }
                                         }
 
