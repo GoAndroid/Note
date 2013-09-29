@@ -18,6 +18,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         if (ALARM_ACTION.equals(intent.getAction())) {
             intent.setClass(context, AlarmActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
 

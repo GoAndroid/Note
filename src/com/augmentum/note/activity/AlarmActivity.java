@@ -9,7 +9,9 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import com.augmentum.note.R;
+import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.ConfirmDialogFragment;
 import com.augmentum.note.model.Note;
 
@@ -19,6 +21,7 @@ public class AlarmActivity extends FragmentActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.v("AlarmActivity", "onCreate");
         super.onCreate(savedInstanceState);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
         builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
@@ -34,7 +37,8 @@ public class AlarmActivity extends FragmentActivity {
         final int NOTIFICATION_REF = new Random(System.currentTimeMillis()).nextInt();
         notificationManager.notify(NOTIFICATION_REF, notification);
 
-        Note note = (Note) getIntent().getSerializableExtra(Note.NOTE_TAG);
+        long id =  getIntent().getLongExtra(Note.TAG, -1);
+        Note note = NoteDaoImpl.getInstance().getById(id);
         ConfirmDialogFragment confirmDialogFragment = new ConfirmDialogFragment();
         confirmDialogFragment.setTitle(R.string.app_name);
         confirmDialogFragment.setMessage(note.getContent());
@@ -52,7 +56,7 @@ public class AlarmActivity extends FragmentActivity {
             public void onClick() {
                 notificationManager.cancel(NOTIFICATION_REF);
                 Intent intent = getIntent();
-                intent.setClass(AlarmActivity.this, NoteEditActivity.class);
+                intent.setClass(AlarmActivity.this, NoteListActivity.class);
                 startActivity(intent);
             }
         });
@@ -64,4 +68,6 @@ public class AlarmActivity extends FragmentActivity {
         super.onStop();
         finish();
     }
+
+
 }

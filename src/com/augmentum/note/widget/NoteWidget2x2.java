@@ -38,6 +38,15 @@ public class NoteWidget2x2 extends AppWidgetProvider {
     public void onDeleted(Context context, int[] appWidgetIds) {
         Log.v(TAG, "onDelete");
         super.onDeleted(context, appWidgetIds);
+
+        Note note;
+
+        for (int appWidgetId : appWidgetIds) {
+            note = NoteDaoImpl.getInstance().getByWidgetId(appWidgetId);
+            note.setWidgetId(AppWidgetManager.INVALID_APPWIDGET_ID);
+            NoteDaoImpl.getInstance().update(note);
+        }
+
     }
 
     @Override

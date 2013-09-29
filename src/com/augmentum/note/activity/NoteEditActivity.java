@@ -234,6 +234,8 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                                 startActivity(Intent.createChooser(emailIntent, "Your email client"));
                                 break;
                             case 2:
+                                Intent weiboIntent = new Intent(NoteEditActivity.this, WeiboActivity.class);
+                                startActivity(weiboIntent);
                                 break;
                         }
                     }
@@ -448,22 +450,24 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private void initAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         int alarmType = AlarmManager.RTC_WAKEUP;
-
         long alarmTime = mNote.getAlertTime();
+
         Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(System.currentTimeMillis());
+        c.add(Calendar.SECOND, 10);
 
         Intent alarmIntent = new Intent();
+        alarmIntent.putExtra(Note.TAG, mNote.getId());
         alarmIntent.setAction(AlarmReceiver.ALARM_ACTION);
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        alarmManager.set(alarmType, alarmTime, alarmPendingIntent);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, (int) mNote.getId(), alarmIntent, 0);
+        alarmManager.set(alarmType, c.getTimeInMillis(), alarmPendingIntent);
     }
 
     private void cancelAlarm() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent alarmIntent = new Intent();
         alarmIntent.setAction(AlarmReceiver.ALARM_ACTION);
-        alarmIntent.setData(Uri.parse("note://id=" + mNote.getId()));
-        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        PendingIntent alarmPendingIntent = PendingIntent.getBroadcast(this, (int) mNote.getId(), alarmIntent, 0);
         alarmManager.cancel(alarmPendingIntent);
     }
 
