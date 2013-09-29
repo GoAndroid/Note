@@ -11,6 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +22,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.augmentum.note.NoteApplication;
 import com.augmentum.note.R;
+import com.augmentum.note.constant.WeiboConstant;
 import com.augmentum.note.dao.NoteDao;
 import com.augmentum.note.dao.impl.NoteDaoImpl;
 import com.augmentum.note.fragment.AlertTimeDialogFragment;
@@ -31,8 +34,25 @@ import com.augmentum.note.util.CalendarUtil;
 import com.augmentum.note.util.Resource;
 import com.augmentum.note.widget.NoteWidget2x2;
 import com.augmentum.note.widget.NoteWidget4x4;
+import com.weibo.sdk.android.*;
+import com.weibo.sdk.android.sso.SsoHandler;
+import com.weibo.sdk.android.util.AccessTokenKeeper;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class NoteEditActivity extends FragmentActivity implements AlertTimeDialogFragment.OnNoteTimePickerListener {
 
@@ -49,6 +69,9 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private ImageView mAlertImage;
     private NoteDao mNoteDao;
     private Note mParent;
+    private Weibo mWeibo;
+    private Oauth2AccessToken mAccessToken;
+    private SsoHandler mSsoHandler;
     private int appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 
     boolean hasAlarm;
@@ -61,11 +84,9 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         super.onCreate(savedInstanceState);
         setContentView(R.layout.note_edit);
         mNoteDao = NoteDaoImpl.getInstance();
-
+        mWeibo = Weibo.getInstance(WeiboConstant.APP_KEY, WeiboConstant.REDIRECT_URL, WeiboConstant.SCOPE);
         initView();
-
         appWidgetId = getIntent().getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-
     }
 
 
@@ -83,6 +104,26 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mAlertImage = (ImageView) findViewById(R.id.note_edit_header_alert_Image);
         SeekBar changeFontSeekBar = (SeekBar) findViewById(R.id.note_edit_change_font_seek_bar);
         TextView modifyTimeTextView = (TextView) findViewById(R.id.note_edit_header_modify_time);
+
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        float textSize = sharedPref.getFloat("fontSize", Resource.getSp(R.dimen.default_edit_text_font_size));
+        mEditText.setTextSize(textSize);
+        mEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                insertOrUpdateNote();
+            }
+        });
 
         Intent intent = getIntent();
         mParent = intent.getParcelableExtra(Note.PARENT_TAG);
@@ -119,10 +160,6 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
         mScrollView.setOnTouchListener(new ScrollViewOnTouchListener());
 
         mChangeColorRadioGroup.setOnCheckedChangeListener(new ChangeColorOnCheckedChangeListener());
-
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        float textSize = sharedPref.getFloat("fontSize", Resource.getSp(R.dimen.default_edit_text_font_size));
-        mEditText.setTextSize(textSize);
 
         changeFontSeekBar.setMax(20);
         changeFontSeekBar.setProgress(Math.round(textSize - 12));
@@ -234,8 +271,41 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
                                 startActivity(Intent.createChooser(emailIntent, "Your email client"));
                                 break;
                             case 2:
-                                Intent weiboIntent = new Intent(NoteEditActivity.this, WeiboActivity.class);
-                                startActivity(weiboIntent);
+                                mAccessToken = AccessTokenKeeper.readAccessToken(NoteEditActivity.this);
+
+                                if (mAccessToken.isSessionValid()) {
+                                    new Thread(new Runnable() {
+
+                                        @Override
+                                        public void run() {
+
+                                            try {
+                                                String baseUrl = "https://api.weibo.com/2/statuses/update.json";
+                                                HttpClient httpClient = new DefaultHttpClient();
+                                                HttpPost post = new HttpPost(baseUrl);
+                                                List<BasicNameValuePair> parms = new ArrayList<BasicNameValuePair>();
+                                                parms.add(new BasicNameValuePair("status", mNote.getContent()));
+                                                parms.add(new BasicNameValuePair("access_token", mAccessToken.getToken()));
+                                                post.setEntity(new UrlEncodedFormEntity(parms, "utf-8"));
+                                                HttpResponse response = httpClient.execute(post);
+                                                Log.i(TAG, "resCode = " + response.getStatusLine().getStatusCode());
+                                                Log.i(TAG, "result = " + EntityUtils.toString(response.getEntity(), "utf-8"));
+                                            } catch (UnsupportedEncodingException e) {
+                                                e.printStackTrace();
+                                            } catch (ClientProtocolException e) {
+                                                e.printStackTrace();
+                                            } catch (IOException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+
+                                    }).start();
+
+                                } else {
+                                    mSsoHandler = new SsoHandler(NoteEditActivity.this, mWeibo);
+                                    mSsoHandler.authorize(new AuthDialogListener(), null);
+                                }
+
                                 break;
                         }
                     }
@@ -509,7 +579,7 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
     private void updateWidget() {
         Intent intent = null;
 
-        if(NoteWidget2x2.TAG.equals(NoteApplication.sWidgetType)) {
+        if (NoteWidget2x2.TAG.equals(NoteApplication.sWidgetType)) {
             intent = new Intent(NoteWidget2x2.WIDGET_UPDATE);
         } else {
             intent = new Intent(NoteWidget4x4.WIDGET_UPDATE);
@@ -517,6 +587,61 @@ public class NoteEditActivity extends FragmentActivity implements AlertTimeDialo
 
         intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mNote.getWidgetId());
         sendBroadcast(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (null != mSsoHandler) {
+            mSsoHandler.authorizeCallBack(requestCode, resultCode, data);
+        }
+    }
+
+    class AuthDialogListener implements WeiboAuthListener {
+
+        @Override
+        public void onComplete(Bundle bundle) {
+
+            Log.v(TAG, "onComplete");
+
+            String token = bundle.getString("access_token");
+            String expiresIn = bundle.getString("expires_in");
+
+            if (null != token) {
+                Log.v(TAG, token);
+            } else {
+                Log.v(TAG, "token is null");
+                Toast.makeText(NoteEditActivity.this, "token is null", Toast.LENGTH_SHORT).show();
+            }
+
+            mAccessToken = new Oauth2AccessToken(token, expiresIn);
+
+            if (mAccessToken.isSessionValid()) {
+                String date = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date(mAccessToken.getExpiresTime()));
+                AccessTokenKeeper.keepAccessToken(NoteEditActivity.this, mAccessToken);
+                Toast.makeText(NoteEditActivity.this, "认证成功", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+        @Override
+        public void onWeiboException(WeiboException e) {
+            Log.v(TAG, "onWeiboException");
+            Toast.makeText(NoteEditActivity.this, "Auth exception : " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onError(WeiboDialogError e) {
+            Log.v(TAG, "onError");
+            Toast.makeText(NoteEditActivity.this, "Auth error : " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onCancel() {
+            Log.v(TAG, "onCancel");
+            Toast.makeText(NoteEditActivity.this, "Auth cancel : ", Toast.LENGTH_LONG).show();
+        }
     }
 
 }
